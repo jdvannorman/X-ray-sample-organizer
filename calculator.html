@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#4f7cff" />
+  <title>IMS Sample Manager</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1a1d23;
+      color: #e0e4ef;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #23272f;
+      border: 1px solid #2e3340;
+      border-radius: 12px;
+      padding: 32px 36px;
+      width: 100%;
+      max-width: 680px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #c8d0e7;
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #6b7590;
+      margin-bottom: 20px;
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid #2e3340;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #6b7590;
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 8px 18px;
+      cursor: pointer;
+      border-radius: 0;
+      width: auto;
+      margin-top: 0;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tab-btn:hover { color: #c8d0e7; background: none; }
+
+    .tab-btn.active {
+      color: #4f7cff;
+      border-bottom-color: #4f7cff;
+      background: none;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #8b93ad;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    select {
+      width: 100%;
+      background: #1a1d23;
+      border: 1px solid #2e3340;
+      border-radius: 8px;
+      color: #e0e4ef;
+      font-size: 1rem;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.15s;
+      appearance: none;
+    }
+
+    input[type="number"]:focus,
+    input[type="text"]:focus,
+    select:focus { border-color: #4f7cff; }
+
+    input::placeholder { color: #3d4455; }
+
+    select option { background: #1a1d23; }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .density-display {
+      font-size: 0.82rem;
+      color: #6b7590;
+      margin-top: 8px;
+    }
+
+    .density-display span { color: #a0aac2; font-weight: 500; }
+
+    /* BUTTONS */
+    button {
+      width: 100%;
+      padding: 11px;
+      background: #4f7cff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.15s;
+    }
+
+    button:hover { background: #3a66e8; }
+
+    .btn-secondary { background: #2e3340; color: #c8d0e7; }
+    .btn-secondary:hover { background: #363d4f; }
+
+    .btn-danger {
+      background: transparent; color: #ff6b6b;
+      border: 1px solid #ff6b6b33; padding: 5px 10px;
+      font-size: 0.78rem; width: auto; margin-top: 0;
+    }
+    .btn-danger:hover { background: #ff6b6b22; }
+
+    .btn-edit {
+      background: transparent; color: #4f7cff;
+      border: 1px solid #4f7cff33; padding: 5px 10px;
+      font-size: 0.78rem; width: auto; margin-top: 0;
+    }
+    .btn-edit:hover { background: #4f7cff22; }
+
+    /* RESULT BOX */
+    .result-box {
+      margin-top: 20px;
+      background: #1a1d23;
+      border: 1px solid #2e3340;
+      border-radius: 10px;
+      padding: 18px 22px;
+      display: none;
+    }
+    .result-box.visible { display: block; }
+
+    .result-title {
+      font-size: 0.78rem; color: #6b7590;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px;
+    }
+
+    .result-row {
+      display: flex; justify-content: space-between;
+      align-items: baseline; padding: 8px 0;
+      border-bottom: 1px solid #23272f;
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-label { font-size: 0.88rem; color: #8b93ad; }
+    .result-value { font-size: 1.05rem; font-weight: 600; color: #c8d0e7; }
+    .result-value.highlight { color: #4f7cff; font-size: 1.25rem; }
+
+    .error { color: #ff6b6b; font-size: 0.85rem; margin-top: 10px; display: none; }
+    .error.visible { display: block; }
+
+    /* SAVE PANEL (inside calculator tab) */
+    .save-panel {
+      margin-top: 16px; padding: 16px;
+      background: #1e2229; border: 1px solid #2e3340;
+      border-radius: 8px; display: none;
+    }
+    .save-panel.visible { display: block; }
+    .save-panel-title {
+      font-size: 0.78rem; color: #6b7590;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px;
+    }
+
+    /* LIBRARY TAB */
+    .add-form {
+      background: #1a1d23; border: 1px solid #2e3340;
+      border-radius: 10px; padding: 18px; margin-bottom: 24px;
+    }
+    .add-form-title {
+      font-size: 0.78rem; color: #6b7590;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px;
+    }
+
+    .alloy-group { margin-bottom: 24px; }
+
+    .alloy-group-header {
+      font-size: 0.8rem; font-weight: 600; color: #4f7cff;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 6px 0; border-bottom: 1px solid #2e3340; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .badge {
+      display: inline-block; font-size: 0.72rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 20px;
+      background: #4f7cff22; color: #4f7cff; letter-spacing: 0.04em;
+    }
+
+    .sample-item {
+      display: grid;
+      grid-template-columns: 90px 80px 1fr auto;
+      align-items: start;
+      gap: 0 14px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      background: #1a1d23;
+      border: 1px solid #2a2f3a;
+      transition: border-color 0.15s;
+    }
+    .sample-item:hover { border-color: #3a4055; }
+    .sample-label { font-size: 0.95rem; font-weight: 600; color: #c8d0e7; }
+    .sample-alloy-col { font-size: 0.85rem; color: #6b7590; padding-top: 2px; }
+    .sample-measurements {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 2px 10px; font-size: 0.82rem;
+    }
+    .sample-meas-cell { color: #8b93ad; }
+    .sample-meas-cell span { display: block; font-size: 0.72rem; color: #4d5570; text-transform: uppercase; letter-spacing: 0.05em; }
+    .sample-meas-val { color: #a0aac2; font-weight: 500; }
+    .sample-stack-note {
+      grid-column: 1 / -1; font-size: 0.74rem; color: #6b7590;
+      margin-top: 6px; padding-top: 6px; border-top: 1px solid #22262e;
+    }
+    .sample-actions { display: flex; gap: 6px; align-items: flex-start; }
+
+    /* System tags on sample */
+    .system-tags {
+      grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 5px;
+      margin-top: 6px;
+    }
+    .sys-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 600;
+      cursor: pointer; border: 1px solid transparent; transition: all 0.15s;
+      user-select: none;
+    }
+    .sys-tag.unused {
+      background: #1e2229; border-color: #2e3340; color: #4d5570;
+    }
+    .sys-tag.unused:hover { border-color: #4f7cff55; color: #8b93ad; }
+    .sys-tag.used {
+      background: #0f2a1a; border-color: #4fc97a55; color: #4fc97a;
+    }
+    .sys-tag.used:hover { background: #0f3020; }
+
+    /* Column header row */
+    .lib-col-header {
+      display: grid;
+      grid-template-columns: 90px 80px 1fr auto;
+      gap: 0 14px;
+      padding: 4px 12px 8px;
+      font-size: 0.7rem; color: #4d5570; text-transform: uppercase;
+      letter-spacing: 0.07em; font-weight: 500;
+      border-bottom: 1px solid #22262e; margin-bottom: 6px;
+    }
+
+    .sample-edit-row {
+      display: none; padding: 14px;
+      background: #1a2030; border: 1px solid #4f7cff44;
+      border-radius: 8px; margin-bottom: 4px;
+    }
+    .sample-edit-row.visible { display: block; }
+
+    .empty-state {
+      text-align: center; color: #4d5570;
+      font-size: 0.9rem; padding: 32px 0;
+    }
+
+    /* RANGE FINDER */
+    .combo-list { margin-top: 16px; }
+
+    .combo-item {
+      background: #1a1d23; border: 1px solid #2e3340;
+      border-radius: 8px; padding: 12px 16px; margin-bottom: 8px;
+    }
+    .combo-total { font-size: 1rem; font-weight: 700; color: #4f7cff; margin-bottom: 8px; }
+    .combo-samples { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .combo-chip {
+      background: #2e3340; border-radius: 4px;
+      padding: 3px 10px; font-size: 0.8rem; color: #c8d0e7;
+    }
+    .combo-chip .chip-alloy { color: #6b7590; font-size: 0.72rem; margin-left: 4px; }
+
+    .no-results {
+      text-align: center; color: #4d5570;
+      font-size: 0.88rem; padding: 24px 0;
+    }
+
+    .section-header {
+      font-size: 1rem; font-weight: 600; color: #c8d0e7; margin-bottom: 6px;
+    }
+    .section-desc {
+      font-size: 0.82rem; color: #6b7590; line-height: 1.5;
+    }
+    .section-desc em { color: #4f7cff; font-style: normal; font-weight: 600; }
+
+    .target-card {
+      background: #1a1d23; border: 1px solid #2e3340;
+      border-radius: 8px; padding: 14px 16px; margin-bottom: 10px;
+    }
+    .target-card.outside-below { border-left: 3px solid #f0a500; }
+    .target-card.outside-above { border-left: 3px solid #4fc97a; }
+    .target-card.on-target     { border-left: 3px solid #4f7cff; }
+
+    .target-header {
+      display: flex; justify-content: space-between;
+      align-items: baseline; margin-bottom: 8px;
+    }
+    .target-label {
+      font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.07em; color: #6b7590;
+    }
+    .target-label.outside-below { color: #f0a500; }
+    .target-label.outside-above { color: #4fc97a; }
+    .target-label.on-target     { color: #4f7cff; }
+    .target-aim  { font-size: 0.75rem; color: #4d5570; }
+    .target-total { font-size: 1rem; font-weight: 700; color: #c8d0e7; margin-bottom: 6px; }
+    .target-delta { font-size: 0.78rem; margin-bottom: 8px; }
+    .delta-neg  { color: #f0a500; }
+    .delta-pos  { color: #4fc97a; }
+    .delta-zero { color: #4f7cff; }
+
+    .stack-save-panel {
+      display: none; margin-top: 12px; padding: 12px;
+      background: #1e2229; border: 1px solid #2e3340; border-radius: 6px;
+    }
+    .stack-save-panel.visible { display: block; }
+    .stack-save-row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+    .stack-save-row .field { margin-bottom: 0; flex: 1; min-width: 110px; }
+    .stack-save-err { color: #ff6b6b; font-size: 0.8rem; margin-top: 6px; display: none; }
+    .stack-save-err.visible { display: block; }
+    .btn-save-stack {
+      background: #4f7cff; color: #fff; border: none; border-radius: 6px;
+      padding: 9px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      white-space: nowrap; width: auto; margin-top: 0; flex-shrink: 0;
+    }
+    .btn-save-stack:hover { background: #3a66e8; }
+    .btn-saved { background: #2a4a2a; color: #4fc97a; border: 1px solid #4fc97a44; cursor: default; }
+    .btn-saved:hover { background: #2a4a2a; }
+
+    /* CURVES TAB */
+    .curve-card {
+      background: #1a1d23; border: 1px solid #2e3340;
+      border-radius: 10px; margin-bottom: 14px; overflow: hidden;
+    }
+    .curve-card-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; cursor: pointer;
+      border-bottom: 1px solid transparent; transition: border-color 0.15s;
+    }
+    .curve-card.open .curve-card-header { border-bottom-color: #2e3340; }
+    .curve-name {
+      font-size: 1rem; font-weight: 600; color: #c8d0e7; flex: 1;
+    }
+    .curve-meta { font-size: 0.78rem; color: #6b7590; }
+    .curve-card-body { display: none; padding: 14px 16px; }
+    .curve-card.open .curve-card-body { display: block; }
+
+    .curve-points-table {
+      width: 100%; border-collapse: collapse; margin-bottom: 14px;
+      font-size: 0.85rem;
+    }
+    .curve-points-table th {
+      text-align: left; color: #6b7590; font-weight: 500;
+      text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.06em;
+      padding: 0 8px 8px 0; border-bottom: 1px solid #2e3340;
+    }
+    .curve-points-table td {
+      padding: 7px 8px 7px 0; border-bottom: 1px solid #1e2229; color: #c8d0e7;
+    }
+    .curve-points-table td:last-child { text-align: right; }
+    .curve-points-table tr:last-child td { border-bottom: none; }
+    .curve-pt-label { font-weight: 600; }
+    .curve-pt-note  { font-size: 0.75rem; color: #6b7590; }
+    .btn-remove-pt  {
+      background: transparent; color: #ff6b6b44; border: none;
+      font-size: 1rem; cursor: pointer; padding: 0 4px; width: auto; margin-top: 0;
+      transition: color 0.15s;
+    }
+    .btn-remove-pt:hover { color: #ff6b6b; background: transparent; }
+
+    .curve-add-row {
+      display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-top: 4px;
+    }
+    .curve-add-row .field { margin-bottom: 0; flex: 1; min-width: 120px; }
+
+    .curve-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .btn-curve-action {
+      background: #2e3340; color: #c8d0e7; border: none; border-radius: 6px;
+      padding: 7px 14px; font-size: 0.8rem; font-weight: 500; cursor: pointer;
+      width: auto; margin-top: 0; transition: background 0.15s;
+    }
+    .btn-curve-action:hover { background: #363d4f; }
+    .btn-curve-action.danger { color: #ff6b6b; }
+    .btn-curve-action.danger:hover { background: #3a2020; }
+
+    /* ALLOY FILTER PILLS */
+    .alloy-pill {
+      display: inline-block; padding: 4px 14px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      border: 1px solid #2e3340; background: #1a1d23; color: #6b7590;
+      transition: all 0.15s; user-select: none;
+    }
+    .alloy-pill:hover { border-color: #4f7cff55; color: #a0aac2; }
+    .alloy-pill.active { background: #4f7cff22; border-color: #4f7cff; color: #4f7cff; }
+
+    /* SYSTEMS TAB */
+    .system-list-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; background: #1a1d23;
+      border: 1px solid #2a2f3a; border-radius: 8px; margin-bottom: 6px;
+    }
+    .system-list-name { font-size: 0.95rem; font-weight: 600; color: #c8d0e7; flex: 1; }
+    .system-usage-count { font-size: 0.78rem; color: #6b7590; }
+
+    /* PRINT STYLES */
+    @media print {
+      body { background: #fff; color: #000; padding: 0; }
+      .card { box-shadow: none; border: none; max-width: 100%; padding: 0; }
+      .tabs, .tab-btn, button, .add-form, .sample-actions,
+      .sample-edit-row, .save-panel, .curve-add-row, .curve-actions,
+      .btn-remove-pt, #tab-calculator, #tab-range { display: none !important; }
+      .tab-panel { display: block !important; }
+      h1 { color: #000; }
+      .subtitle { color: #555; }
+      .alloy-group-header { color: #000; border-bottom-color: #ccc; }
+      .sample-item { background: #fff; border-color: #ccc; display: grid; }
+      .sample-label { color: #000; }
+      .sample-measurements, .sample-meas-cell { color: #333; }
+      .sample-meas-val { color: #000; }
+      .sys-tag { display: none; }
+      .curve-card { border-color: #ccc; }
+      .curve-card-body { display: block !important; }
+      .curve-card-header { border-bottom-color: #ccc; }
+      .curve-name { color: #000; }
+      .curve-points-table th { color: #555; border-bottom-color: #ccc; }
+      .curve-points-table td { color: #000; border-bottom-color: #eee; }
+    }
+
+    .divider { border: none; border-top: 1px solid #2e3340; margin: 20px 0; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #4f7cff; color: #fff; padding: 10px 20px;
+      border-radius: 8px; font-size: 0.88rem; z-index: 9999;
+      pointer-events: none; transition: opacity 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>IMS Sample Manager</h1>
+    <p class="subtitle">Calculate thickness · Manage sample library · Build calibration curves</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('calculator', this)">Calculator</button>
+      <button class="tab-btn" onclick="switchTab('library', this)">Sample Library</button>
+      <button class="tab-btn" onclick="switchTab('range', this)">Range Finder</button>
+      <button class="tab-btn" onclick="switchTab('curves', this)">Curves</button>
+      <button class="tab-btn" onclick="switchTab('systems', this)">Systems</button>
+    </div>
+
+    <!-- ===== CALCULATOR TAB ===== -->
+    <div id="tab-calculator" class="tab-panel active">
+      <div class="field">
+        <label>Alloy</label>
+        <select id="alloy" onchange="updateDensity()">
+          <option value="1100">1100</option>
+          <option value="3002">3002</option>
+          <option value="3003">3003</option>
+          <option value="3004">3004</option>
+          <option value="3105">3105</option>
+          <option value="5052">5052</option>
+          <option value="8006">8006</option>
+        </select>
+        <p class="density-display">Density: <span id="densityLabel">2.710</span> g/cm³</p>
+      </div>
+
+      <div class="field">
+        <label>Weight (grams)</label>
+        <input type="number" id="weight" placeholder="e.g. 45.32" min="0" step="any" />
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Length (inches)</label>
+          <input type="number" id="length" placeholder="e.g. 6.000" min="0" step="any" />
+        </div>
+        <div class="field">
+          <label>Width (inches)</label>
+          <input type="number" id="width" placeholder="e.g. 3.000" min="0" step="any" />
+        </div>
+      </div>
+
+      <button onclick="calculate()">Calculate Thickness</button>
+      <p class="error" id="error"></p>
+
+      <div class="result-box" id="results">
+        <p class="result-title">Results</p>
+        <div class="result-row">
+          <span class="result-label">Thickness (inches)</span>
+          <span class="result-value highlight" id="res-thickness-in">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Thickness (mil)</span>
+          <span class="result-value" id="res-thickness-mil">—</span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Thickness (µm)</span>
+          <span class="result-value" id="res-thickness-um">—</span>
+        </div>
+      </div>
+
+      <!-- Save to Library panel (appears after a calculation) -->
+      <div class="save-panel" id="savePanel">
+        <div class="save-panel-title">Save to Sample Library</div>
+        <div class="field" style="margin-bottom:10px">
+          <label>Sample Label</label>
+          <input type="text" id="saveLabel" placeholder="e.g. A-01, Sample-003" />
+        </div>
+        <button onclick="saveFromCalculator()" style="margin-top:0" class="btn-secondary">Save Sample</button>
+        <p class="error" id="saveError"></p>
+      </div>
+    </div>
+
+    <!-- ===== LIBRARY TAB ===== -->
+    <div id="tab-library" class="tab-panel">
+      <div class="add-form">
+        <div class="add-form-title">Add Sample Manually</div>
+        <div class="row">
+          <div class="field" style="margin-bottom:0">
+            <label>Label</label>
+            <input type="text" id="libLabel" placeholder="e.g. B-04" />
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Alloy</label>
+            <select id="libAlloy">
+              <option value="1100">1100</option>
+              <option value="3002">3002</option>
+              <option value="3003">3003</option>
+              <option value="3004">3004</option>
+              <option value="3105">3105</option>
+              <option value="5052">5052</option>
+              <option value="8006">8006</option>
+            </select>
+          </div>
+        </div>
+        <div class="row" style="margin-top:14px">
+          <div class="field" style="margin-bottom:0">
+            <label>Thickness (inches)</label>
+            <input type="number" id="libThickness" placeholder="e.g. 0.030" min="0" step="any" />
+          </div>
+          <div style="display:flex;align-items:flex-end">
+            <button onclick="addSampleManual()" style="margin-top:0;width:100%">Add Sample</button>
+          </div>
+        </div>
+        <p class="error" id="libError" style="margin-top:10px"></p>
+      </div>
+
+      <!-- Alloy filter pills -->
+      <div id="libAlloFilter" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px"></div>
+
+      <div id="libraryList"></div>
+
+      <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
+        <button class="btn-curve-action" onclick="exportLibraryCSV()" style="display:inline-flex;gap:6px;align-items:center">&#8659; Export CSV</button>
+        <button class="btn-curve-action" onclick="printLibrary()" style="display:inline-flex;gap:6px;align-items:center">&#9113; Print Library</button>
+      </div>
+    </div>
+
+    <!-- ===== CURVES TAB ===== -->
+    <div id="tab-curves" class="tab-panel">
+      <div class="add-form">
+        <div class="add-form-title">New Calibration Curve</div>
+        <div class="row">
+          <div class="field" style="margin-bottom:0">
+            <label>Curve Name</label>
+            <input type="text" id="curveName" placeholder="e.g. 3004 Thin, Al-Curve-1" />
+          </div>
+          <div style="display:flex;align-items:flex-end">
+            <button onclick="addCurve()" style="margin-top:0;width:100%">Create Curve</button>
+          </div>
+        </div>
+        <p class="error" id="curveError" style="margin-top:10px"></p>
+      </div>
+
+      <div id="curveList"></div>
+    </div>
+
+    <!-- ===== SYSTEMS TAB ===== -->
+    <div id="tab-systems" class="tab-panel">
+      <div class="add-form">
+        <div class="add-form-title">Add XRay System</div>
+        <div class="row">
+          <div class="field" style="margin-bottom:0">
+            <label>System Name</label>
+            <input type="text" id="sysName" placeholder="e.g. IMS-7, Unit 3, Lab B" />
+          </div>
+          <div style="display:flex;align-items:flex-end">
+            <button onclick="addSystem()" style="margin-top:0;width:100%">Add System</button>
+          </div>
+        </div>
+        <p class="error" id="sysError" style="margin-top:10px"></p>
+      </div>
+      <div id="systemList"></div>
+
+      <!-- Backup / Restore -->
+      <div class="add-form" style="margin-top:24px">
+        <div class="add-form-title">Backup &amp; Restore</div>
+        <p style="font-size:0.8rem;color:#6b7590;margin-bottom:14px;line-height:1.5">Export all samples, systems, and curves to a JSON file. Re-import it any time to restore your data.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button onclick="backupData()" class="btn-secondary" style="width:auto;margin-top:0">&#8659; Export Backup</button>
+          <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:0.95rem;font-weight:600;color:#c8d0e7;background:#2e3340;border-radius:8px;padding:10px 16px">
+            &#8657; Import Backup
+            <input type="file" id="restoreFile" accept=".json" onchange="restoreData(event)" style="display:none" />
+          </label>
+        </div>
+        <p class="error" id="restoreError" style="margin-top:10px"></p>
+      </div>
+    </div>
+
+    <!-- ===== RANGE FINDER TAB ===== -->
+    <div id="tab-range" class="tab-panel">
+
+      <div class="section-header" style="margin-bottom:6px">Distributed Targets</div>
+      <p class="section-desc">Evenly space N targets across a range. The first combo lands <em>below</em> the min; the last lands <em>above</em> the max. Middle targets snap to the closest available stack.</p>
+
+      <div class="row" style="margin-top:16px">
+        <div class="field">
+          <label>Range Min (inches)</label>
+          <input type="number" id="distMin" placeholder="e.g. 0.090" min="0" step="any" />
+        </div>
+        <div class="field">
+          <label>Range Max (inches)</label>
+          <input type="number" id="distMax" placeholder="e.g. 0.250" min="0" step="any" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Number of Targets</label>
+          <select id="distCount">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5" selected>5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Max Samples to Stack</label>
+          <select id="distMaxStack">
+            <option value="1">1 sample</option>
+            <option value="2" selected>2 samples</option>
+            <option value="3">3 samples</option>
+            <option value="4">4 samples</option>
+            <option value="5">5 samples</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Filter by Alloy</label>
+        <select id="distAlloyFilter">
+          <option value="">All Alloys</option>
+          <option value="1100">1100</option>
+          <option value="3002">3002</option>
+          <option value="3003">3003</option>
+          <option value="3004">3004</option>
+          <option value="3105">3105</option>
+          <option value="5052">5052</option>
+          <option value="8006">8006</option>
+        </select>
+      </div>
+
+      <button onclick="findDistributed()">Find Distributed Targets</button>
+      <p class="error" id="distError"></p>
+      <div id="distResults"></div>
+    </div>
+  </div>
+
+  <script>
+    const DENSITIES = {
+      '1100': 2.710,
+      '3002': 2.720,
+      '3003': 2.730,
+      '3004': 2.720,
+      '3105': 2.720,
+      '5052': 2.680,
+      '8006': 2.703,
+    };
+
+    // ── Storage ──────────────────────────────────────────────────
+    function loadSamples() {
+      try { return JSON.parse(localStorage.getItem('ims_samples') || '[]'); }
+      catch { return []; }
+    }
+    function saveSamples(arr) { localStorage.setItem('ims_samples', JSON.stringify(arr)); }
+
+    function loadCurves() {
+      try { return JSON.parse(localStorage.getItem('ims_curves') || '[]'); }
+      catch { return []; }
+    }
+    function saveCurves(arr) { localStorage.setItem('ims_curves', JSON.stringify(arr)); }
+
+    function loadSystems() {
+      try { return JSON.parse(localStorage.getItem('ims_systems') || '[]'); }
+      catch { return []; }
+    }
+    function saveSystems(arr) { localStorage.setItem('ims_systems', JSON.stringify(arr)); }
+
+    // ── Tabs ─────────────────────────────────────────────────────
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      btn.classList.add('active');
+      if (name === 'library') renderLibrary();
+      if (name === 'curves')  renderCurves();
+      if (name === 'systems') renderSystems();
+    }
+
+    // ── Calculator ───────────────────────────────────────────────
+    let lastCalcResult = null;
+
+    function updateDensity() {
+      const alloy = document.getElementById('alloy').value;
+      document.getElementById('densityLabel').textContent = DENSITIES[alloy].toFixed(3);
+    }
+
+    function calculate() {
+      const errorEl   = document.getElementById('error');
+      const resultsEl = document.getElementById('results');
+      const savePanel = document.getElementById('savePanel');
+      errorEl.classList.remove('visible');
+      resultsEl.classList.remove('visible');
+      savePanel.classList.remove('visible');
+      lastCalcResult = null;
+
+      const alloy  = document.getElementById('alloy').value;
+      const weight = parseFloat(document.getElementById('weight').value);
+      const length = parseFloat(document.getElementById('length').value);
+      const width  = parseFloat(document.getElementById('width').value);
+
+      if (isNaN(weight) || weight <= 0) { showError('Enter a valid weight.'); return; }
+      if (isNaN(length) || length <= 0) { showError('Enter a valid length.'); return; }
+      if (isNaN(width)  || width  <= 0) { showError('Enter a valid width.');  return; }
+
+      const density     = DENSITIES[alloy];
+      const thicknessCm = (weight / density) / (length * 2.54 * width * 2.54);
+      const thicknessIn = thicknessCm / 2.54;
+
+      document.getElementById('res-thickness-in').textContent  = thicknessIn.toFixed(5) + ' in';
+      document.getElementById('res-thickness-mil').textContent = (thicknessIn * 1000).toFixed(3) + ' mil';
+      document.getElementById('res-thickness-um').textContent  = (thicknessCm * 10000).toFixed(3) + ' µm';
+
+      resultsEl.classList.add('visible');
+      lastCalcResult = { alloy, thicknessIn };
+      document.getElementById('saveLabel').value = '';
+      document.getElementById('saveError').classList.remove('visible');
+      savePanel.classList.add('visible');
+    }
+
+    function saveFromCalculator() {
+      if (!lastCalcResult) return;
+      const label = document.getElementById('saveLabel').value.trim();
+      const errEl = document.getElementById('saveError');
+      errEl.classList.remove('visible');
+      if (!label) { errEl.textContent = 'Enter a label for this sample.'; errEl.classList.add('visible'); return; }
+      const samples = loadSamples();
+      if (samples.find(s => s.label.toLowerCase() === label.toLowerCase())) {
+        errEl.textContent = 'A sample with that label already exists.'; errEl.classList.add('visible'); return;
+      }
+      samples.push({ id: Date.now(), label, alloy: lastCalcResult.alloy, thickness_in: lastCalcResult.thicknessIn });
+      saveSamples(samples);
+      document.getElementById('savePanel').classList.remove('visible');
+      showToast(`"${label}" saved to library.`);
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error');
+      el.textContent = msg;
+      el.classList.add('visible');
+    }
+
+    // ── Library ──────────────────────────────────────────────────
+    function addSampleManual() {
+      const label     = document.getElementById('libLabel').value.trim();
+      const alloy     = document.getElementById('libAlloy').value;
+      const thickness = parseFloat(document.getElementById('libThickness').value);
+      const errEl     = document.getElementById('libError');
+      errEl.classList.remove('visible');
+
+      if (!label) { errEl.textContent = 'Enter a label.'; errEl.classList.add('visible'); return; }
+      if (isNaN(thickness) || thickness <= 0) { errEl.textContent = 'Enter a valid thickness.'; errEl.classList.add('visible'); return; }
+
+      const samples = loadSamples();
+      if (samples.find(s => s.label.toLowerCase() === label.toLowerCase())) {
+        errEl.textContent = 'A sample with that label already exists.'; errEl.classList.add('visible'); return;
+      }
+      samples.push({ id: Date.now(), label, alloy, thickness_in: thickness });
+      saveSamples(samples);
+      document.getElementById('libLabel').value = '';
+      document.getElementById('libThickness').value = '';
+      renderLibrary();
+    }
+
+    function deleteSample(id) {
+      saveSamples(loadSamples().filter(s => s.id !== id));
+      renderLibrary();
+    }
+
+    function startEdit(id) {
+      document.querySelectorAll('.sample-edit-row').forEach(el => {
+        if (el.dataset.id != id) el.classList.remove('visible');
+      });
+      const row = document.querySelector(`.sample-edit-row[data-id="${id}"]`);
+      if (row) row.classList.toggle('visible');
+    }
+
+    function saveEdit(id) {
+      const row         = document.querySelector(`.sample-edit-row[data-id="${id}"]`);
+      const newLabel    = row.querySelector('.edit-label').value.trim();
+      const newAlloy    = row.querySelector('.edit-alloy').value;
+      const newThick    = parseFloat(row.querySelector('.edit-thickness').value);
+
+      if (!newLabel)                    { alert('Label cannot be empty.'); return; }
+      if (isNaN(newThick) || newThick <= 0) { alert('Enter a valid thickness.'); return; }
+
+      let samples = loadSamples();
+      if (samples.filter(s => s.id !== id).find(s => s.label.toLowerCase() === newLabel.toLowerCase())) {
+        alert('Another sample already has that label.'); return;
+      }
+      saveSamples(samples.map(s => s.id === id ? { ...s, label: newLabel, alloy: newAlloy, thickness_in: newThick } : s));
+      renderLibrary();
+    }
+
+    let libAlloyFilter = '';
+
+    function setLibAlloyFilter(alloy) {
+      libAlloyFilter = (libAlloyFilter === alloy) ? '' : alloy;
+      renderLibrary();
+    }
+
+    function renderLibrary() {
+      const allSamples = loadSamples();
+      const systems    = loadSystems();
+      const container  = document.getElementById('libraryList');
+      const pillBox    = document.getElementById('libAlloFilter');
+
+      // Build alloy pills from what's actually in the library
+      const alloySet = [...new Set(allSamples.map(s => s.alloy))].sort();
+      if (pillBox) {
+        let pillHtml = `<span class="alloy-pill${libAlloyFilter === '' ? ' active' : ''}" onclick="setLibAlloyFilter('')">All</span>`;
+        alloySet.forEach(a => {
+          pillHtml += `<span class="alloy-pill${libAlloyFilter === a ? ' active' : ''}" onclick="setLibAlloyFilter('${a}')">${a}</span>`;
+        });
+        pillBox.innerHTML = pillHtml;
+      }
+
+      const samples = libAlloyFilter ? allSamples.filter(s => s.alloy === libAlloyFilter) : allSamples;
+
+      if (samples.length === 0) {
+        container.innerHTML = allSamples.length === 0
+          ? '<p class="empty-state">No samples saved yet.<br>Add one above or calculate &amp; save from the Calculator tab.</p>'
+          : '<p class="empty-state">No samples for that alloy.</p>';
+        return;
+      }
+
+      const groups = {};
+      samples.forEach(s => { (groups[s.alloy] = groups[s.alloy] || []).push(s); });
+
+      let html = '';
+      Object.keys(groups).sort().forEach(alloy => {
+        const list = groups[alloy].slice().sort((a, b) => a.thickness_in - b.thickness_in);
+        html += `<div class="alloy-group">
+          <div class="alloy-group-header">Alloy ${alloy} <span class="badge">${list.length}</span></div>
+          <div class="lib-col-header">
+            <span>Label</span><span>Alloy</span><span style="display:grid;grid-template-columns:repeat(3,1fr);gap:0 10px"><span>Inches</span><span>Mil</span><span style="text-transform:none">µm</span></span><span></span>
+          </div>`;
+        list.forEach(s => {
+          const mil = (s.thickness_in * 1000).toFixed(3);
+          const um  = (s.thickness_in * 25400).toFixed(3);
+          const alloyOpts = Object.keys(DENSITIES).map(a =>
+            `<option value="${a}" ${a === s.alloy ? 'selected' : ''}>${a}</option>`).join('');
+
+          const usedSet = new Set(s.usedInSystems || []);
+          let tagHtml = '';
+          if (systems.length > 0) {
+            tagHtml = `<div class="system-tags">` +
+              systems.map(sys => {
+                const used = usedSet.has(sys.id);
+                return `<span class="sys-tag ${used ? 'used' : 'unused'}" title="${used ? 'Used in' : 'Not used in'} ${esc(sys.name)}" onclick="toggleSystemUsage(${s.id},${sys.id})">${used ? '&#10003; ' : ''}${esc(sys.name)}</span>`;
+              }).join('') +
+            `</div>`;
+          }
+
+          html += `
+          <div class="sample-item">
+            <span class="sample-label">${esc(s.label)}</span>
+            <span class="sample-alloy-col">${s.alloy}</span>
+            <div class="sample-measurements">
+              <div class="sample-meas-cell"><span>Inches</span><span class="sample-meas-val">${s.thickness_in.toFixed(5)}</span></div>
+              <div class="sample-meas-cell"><span>Mil</span><span class="sample-meas-val">${mil}</span></div>
+              <div class="sample-meas-cell"><span style="text-transform:none">µm</span><span class="sample-meas-val">${um}</span></div>
+              ${s.note ? `<div class="sample-stack-note">${esc(s.note)}</div>` : ''}
+              ${tagHtml}
+            </div>
+            <div class="sample-actions">
+              <button class="btn-edit" onclick="startEdit(${s.id})">Edit</button>
+              <button class="btn-danger" onclick="deleteSample(${s.id})">Delete</button>
+            </div>
+          </div>
+          <div class="sample-edit-row" data-id="${s.id}">
+            <div class="row" style="gap:10px;margin-bottom:12px">
+              <div class="field" style="margin-bottom:0">
+                <label>Label</label>
+                <input type="text" class="edit-label" value="${esc(s.label)}" />
+              </div>
+              <div class="field" style="margin-bottom:0">
+                <label>Alloy</label>
+                <select class="edit-alloy">${alloyOpts}</select>
+              </div>
+            </div>
+            <div class="field" style="margin-bottom:12px">
+              <label>Thickness (inches)</label>
+              <input type="number" class="edit-thickness" value="${s.thickness_in}" step="any" min="0" />
+            </div>
+            <div style="display:flex;gap:8px">
+              <button onclick="saveEdit(${s.id})" style="flex:1;margin-top:0">Save</button>
+              <button class="btn-secondary" onclick="startEdit(${s.id})" style="flex:1;margin-top:0">Cancel</button>
+            </div>
+          </div>`;
+        });
+        html += `</div>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // ── Distributed Targets ──────────────────────────────────────
+    let lastDistResults = [];
+
+    function findDistributed() {
+      const errEl = document.getElementById('distError');
+      errEl.classList.remove('visible');
+      document.getElementById('distResults').innerHTML = '';
+      lastDistResults = [];
+
+      const minT        = parseFloat(document.getElementById('distMin').value);
+      const maxT        = parseFloat(document.getElementById('distMax').value);
+      const numTargets  = parseInt(document.getElementById('distCount').value);
+      const maxStack    = parseInt(document.getElementById('distMaxStack').value);
+      const alloyFilter = document.getElementById('distAlloyFilter').value;
+
+      if (isNaN(minT) || minT < 0)  { errEl.textContent = 'Enter a valid range min.'; errEl.classList.add('visible'); return; }
+      if (isNaN(maxT) || maxT <= 0) { errEl.textContent = 'Enter a valid range max.'; errEl.classList.add('visible'); return; }
+      if (minT >= maxT)             { errEl.textContent = 'Min must be less than Max.'; errEl.classList.add('visible'); return; }
+
+      let samples = loadSamples();
+      if (alloyFilter) samples = samples.filter(s => s.alloy === alloyFilter);
+
+      if (samples.length === 0) {
+        errEl.textContent = 'No samples in library' + (alloyFilter ? ' for that alloy' : '') + '. Add samples first.';
+        errEl.classList.add('visible'); return;
+      }
+
+      samples.sort((a, b) => a.thickness_in - b.thickness_in);
+
+      const allCombos = [];
+      function buildCombos(startIdx, current, total) {
+        if (current.length > 0) allCombos.push({ samples: [...current], total });
+        if (current.length >= maxStack) return;
+        for (let i = startIdx; i < samples.length; i++) {
+          current.push(samples[i]);
+          buildCombos(i + 1, current, total + samples[i].thickness_in);
+          current.pop();
+        }
+      }
+      buildCombos(0, [], 0);
+      allCombos.sort((a, b) => a.total - b.total);
+
+      if (allCombos.length === 0) {
+        errEl.textContent = 'No stacking combinations possible with the current library.';
+        errEl.classList.add('visible'); return;
+      }
+
+      const step = (maxT - minT) / (numTargets - 1);
+      const targetValues = [];
+      for (let i = 0; i < numTargets; i++) targetValues.push(minT + i * step);
+
+      let html = '<div class="combo-list" style="margin-top:16px">';
+
+      targetValues.forEach((target, idx) => {
+        let best = null;
+        let mode = 'on-target';
+        let modeLabel = 'Target';
+
+        if (idx === 0) {
+          const below = allCombos.filter(c => c.total < minT - 1e-9);
+          if (below.length > 0) {
+            best = below[below.length - 1];
+            mode = 'outside-below'; modeLabel = 'Below Range';
+          } else {
+            best = allCombos.reduce((a, b) => Math.abs(b.total - target) < Math.abs(a.total - target) ? b : a);
+            mode = best.total > target + 1e-9 ? 'outside-above' : 'on-target';
+            modeLabel = best.total > target + 1e-9 ? 'Closest Above' : 'Closest';
+          }
+        } else if (idx === numTargets - 1) {
+          const above = allCombos.filter(c => c.total > maxT + 1e-9);
+          if (above.length > 0) {
+            best = above[0];
+            mode = 'outside-above'; modeLabel = 'Above Range';
+          } else {
+            best = allCombos.reduce((a, b) => Math.abs(b.total - target) < Math.abs(a.total - target) ? b : a);
+            mode = best.total < target - 1e-9 ? 'outside-below' : 'on-target';
+            modeLabel = best.total < target - 1e-9 ? 'Closest Below' : 'Closest';
+          }
+        } else {
+          best = allCombos.reduce((a, b) => Math.abs(b.total - target) < Math.abs(a.total - target) ? b : a);
+          const diff = best.total - target;
+          if (Math.abs(diff) < 1e-9)      { mode = 'on-target';     modeLabel = 'On Target'; }
+          else if (diff < 0)               { mode = 'outside-below'; modeLabel = 'Closest Below'; }
+          else                             { mode = 'outside-above'; modeLabel = 'Closest Above'; }
+        }
+
+        lastDistResults.push({ best, mode });
+
+        const delta      = best.total - target;
+        const deltaAbs   = Math.abs(delta);
+        const deltaSign  = delta < -1e-9 ? '\u2212' : delta > 1e-9 ? '+' : '\u00b1';
+        const deltaClass = delta < -1e-9 ? 'delta-neg' : delta > 1e-9 ? 'delta-pos' : 'delta-zero';
+        const chips = best.samples.map(s =>
+          `<span class="combo-chip">${esc(s.label)}<span class="chip-alloy">${s.alloy}</span></span>`).join('');
+
+        // Guess alloy: use the most common alloy among stacked samples
+        const alloyCounts = {};
+        best.samples.forEach(s => { alloyCounts[s.alloy] = (alloyCounts[s.alloy] || 0) + 1; });
+        const guessAlloy = Object.keys(alloyCounts).sort((a,b) => alloyCounts[b]-alloyCounts[a])[0];
+        const alloyOpts = Object.keys(DENSITIES).map(a =>
+          `<option value="${a}" ${a === guessAlloy ? 'selected' : ''}>${a}</option>`).join('');
+
+        html += `
+        <div class="target-card ${mode}" id="tcard-${idx}">
+          <div class="target-header">
+            <span class="target-label ${mode}">${idx + 1} of ${numTargets} \u2014 ${modeLabel}</span>
+            <span class="target-aim">aim ${target.toFixed(5)}"</span>
+          </div>
+          <div class="target-total">${best.total.toFixed(5)}" &nbsp;&middot;&nbsp; ${(best.total * 1000).toFixed(3)} mil</div>
+          <div class="target-delta ${deltaClass}">&Delta; ${deltaSign}${(deltaAbs * 1000).toFixed(3)} mil &nbsp;&middot;&nbsp; ${best.samples.length} sample${best.samples.length > 1 ? 's' : ''}</div>
+          <div class="combo-samples" style="margin-bottom:10px">${chips}</div>
+          <button class="btn-edit" style="width:auto;margin-top:0;padding:5px 12px;font-size:0.78rem"
+            onclick="toggleStackSave(${idx})">Save to Library</button>
+          <div class="stack-save-panel" id="ssp-${idx}">
+            <div class="stack-save-row">
+              <div class="field">
+                <label>Stack Label</label>
+                <input type="text" id="ssl-${idx}" placeholder="e.g. Stack-A1" />
+              </div>
+              <div class="field">
+                <label>Alloy</label>
+                <select id="ssa-${idx}">${alloyOpts}</select>
+              </div>
+              <button class="btn-save-stack" id="ssb-${idx}" onclick="saveStack(${idx})">Save</button>
+            </div>
+            <div class="stack-save-err" id="sse-${idx}"></div>
+          </div>
+        </div>`;
+      });
+
+      html += '</div>';
+      document.getElementById('distResults').innerHTML = html;
+    }
+
+    function toggleStackSave(idx) {
+      const panel = document.getElementById('ssp-' + idx);
+      panel.classList.toggle('visible');
+    }
+
+    function saveStack(idx) {
+      const label   = document.getElementById('ssl-' + idx).value.trim();
+      const alloy   = document.getElementById('ssa-' + idx).value;
+      const errEl   = document.getElementById('sse-' + idx);
+      const saveBtn = document.getElementById('ssb-' + idx);
+      errEl.classList.remove('visible');
+
+      if (!label) { errEl.textContent = 'Enter a label.'; errEl.classList.add('visible'); return; }
+
+      const result = lastDistResults[idx];
+      if (!result) return;
+
+      const existing = loadSamples();
+      if (existing.find(s => s.label.toLowerCase() === label.toLowerCase())) {
+        errEl.textContent = 'A sample with that label already exists.'; errEl.classList.add('visible'); return;
+      }
+
+      const stackNote = result.best.samples.map(s => s.label).join(' + ');
+      existing.push({
+        id: Date.now(),
+        label,
+        alloy,
+        thickness_in: result.best.total,
+        note: stackNote
+      });
+      saveSamples(existing);
+
+      // Mark card as saved
+      saveBtn.textContent = 'Saved \u2713';
+      saveBtn.className = 'btn-save-stack btn-saved';
+      saveBtn.disabled = true;
+      document.getElementById('ssl-' + idx).disabled = true;
+      document.getElementById('ssa-' + idx).disabled = true;
+      showToast(`"${label}" saved to library.`);
+    }
+
+    // ── Utilities ────────────────────────────────────────────────
+    function esc(str) {
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2500);
+    }
+
+    // ── Curves ───────────────────────────────────────────────────
+    function addCurve() {
+      const nameEl = document.getElementById('curveName');
+      const errEl  = document.getElementById('curveError');
+      const name   = nameEl.value.trim();
+      errEl.classList.remove('visible');
+      if (!name) { errEl.textContent = 'Enter a curve name.'; errEl.classList.add('visible'); return; }
+      const curves = loadCurves();
+      if (curves.find(c => c.name.toLowerCase() === name.toLowerCase())) {
+        errEl.textContent = 'A curve with that name already exists.'; errEl.classList.add('visible'); return;
+      }
+      curves.push({ id: Date.now(), name, pointIds: [] });
+      saveCurves(curves);
+      nameEl.value = '';
+      renderCurves();
+    }
+
+    function deleteCurve(id) {
+      if (!confirm('Delete this curve? The samples themselves will not be removed from the library.')) return;
+      saveCurves(loadCurves().filter(c => c.id !== id));
+      renderCurves();
+    }
+
+    function addPointToCurve(curveId) {
+      const sel = document.getElementById('cpadd-' + curveId);
+      const sampleId = parseInt(sel.value);
+      if (!sampleId) return;
+      const curves = loadCurves();
+      const curve  = curves.find(c => c.id === curveId);
+      if (!curve) return;
+      if (curve.pointIds.includes(sampleId)) {
+        showToast('That sample is already on this curve.'); return;
+      }
+      curve.pointIds.push(sampleId);
+      saveCurves(curves);
+      renderCurves();
+      // Re-open the same card
+      setTimeout(() => {
+        const card = document.getElementById('curve-card-' + curveId);
+        if (card) { card.classList.add('open'); }
+      }, 10);
+    }
+
+    function removePointFromCurve(curveId, sampleId) {
+      const curves = loadCurves();
+      const curve  = curves.find(c => c.id === curveId);
+      if (!curve) return;
+      curve.pointIds = curve.pointIds.filter(id => id !== sampleId);
+      saveCurves(curves);
+      renderCurves();
+      setTimeout(() => {
+        const card = document.getElementById('curve-card-' + curveId);
+        if (card) card.classList.add('open');
+      }, 10);
+    }
+
+    function toggleCurveCard(id) {
+      const card = document.getElementById('curve-card-' + id);
+      if (card) card.classList.toggle('open');
+    }
+
+    function renderCurves() {
+      const curves  = loadCurves();
+      const samples = loadSamples();
+      const container = document.getElementById('curveList');
+      if (!container) return;
+
+      if (curves.length === 0) {
+        container.innerHTML = '<p class="empty-state">No curves yet.<br>Create one above to start grouping samples for calibration.</p>';
+        return;
+      }
+
+      const alloyOpts = Object.keys(DENSITIES).map(a => `<option value="${a}">${a}</option>`).join('');
+
+      let html = '';
+      curves.forEach(curve => {
+        const points = curve.pointIds
+          .map(id => samples.find(s => s.id === id))
+          .filter(Boolean)
+          .sort((a, b) => a.thickness_in - b.thickness_in);
+
+        // Samples not yet on this curve, for the add dropdown
+        const available = samples.filter(s => !curve.pointIds.includes(s.id));
+
+        const availOpts = available.length
+          ? `<option value="">— select sample —</option>` +
+            available.map(s => `<option value="${s.id}">${esc(s.label)} · ${(s.thickness_in * 1000).toFixed(3)} mil (${s.alloy})</option>`).join('')
+          : `<option value="">All library samples added</option>`;
+
+        let tableRows = '';
+        if (points.length === 0) {
+          tableRows = `<tr><td colspan="6" style="color:#4d5570;padding:12px 0">No points yet — add samples below.</td></tr>`;
+        } else {
+          points.forEach(s => {
+            tableRows += `<tr>
+              <td class="curve-pt-label">${esc(s.label)}</td>
+              <td>${s.alloy}</td>
+              <td>${s.thickness_in.toFixed(5)}"</td>
+              <td>${(s.thickness_in * 1000).toFixed(3)}</td>
+              <td>${(s.thickness_in * 25400).toFixed(3)}</td>
+              <td><button class="btn-remove-pt" title="Remove from curve" onclick="removePointFromCurve(${curve.id},${s.id})">&#10005;</button></td>
+            </tr>`;
+          });
+        }
+
+        html += `
+        <div class="curve-card" id="curve-card-${curve.id}">
+          <div class="curve-card-header" onclick="toggleCurveCard(${curve.id})">
+            <span class="curve-name">${esc(curve.name)}</span>
+            <span class="curve-meta">${points.length} point${points.length !== 1 ? 's' : ''}</span>
+            <span style="color:#4d5570;font-size:0.8rem;margin-left:6px">&#9660;</span>
+          </div>
+          <div class="curve-card-body">
+            <table class="curve-points-table">
+              <thead><tr><th>Label</th><th>Alloy</th><th>Inches</th><th>Mil</th><th style="text-transform:none">µm</th><th></th></tr></thead>
+              <tbody>${tableRows}</tbody>
+            </table>
+            <div class="curve-add-row">
+              <div class="field">
+                <label>Add Sample</label>
+                <select id="cpadd-${curve.id}">${availOpts}</select>
+              </div>
+              <button class="btn-save-stack" onclick="addPointToCurve(${curve.id})" style="margin-bottom:0">Add</button>
+            </div>
+            <div class="curve-actions">
+              <button class="btn-curve-action" onclick="exportCurveCSV(${curve.id})">&#8659; Export CSV</button>
+              <button class="btn-curve-action" onclick="printCurve(${curve.id})">&#9113; Print</button>
+              <button class="btn-curve-action danger" onclick="deleteCurve(${curve.id})">Delete Curve</button>
+            </div>
+          </div>
+        </div>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // ── Export / Print ────────────────────────────────────────────
+    function csvRow(cells) {
+      return cells.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',');
+    }
+
+    function downloadCSV(filename, rows) {
+      const blob = new Blob([rows.join('\r\n')], { type: 'text/csv' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportLibraryCSV() {
+      const samples = loadSamples();
+      if (samples.length === 0) { showToast('Library is empty.'); return; }
+      const rows = [csvRow(['Label', 'Alloy', 'Thickness (in)', 'Thickness (mil)', 'Thickness (µm)', 'Stack'])];
+      samples.slice().sort((a, b) => a.alloy.localeCompare(b.alloy) || a.thickness_in - b.thickness_in).forEach(s => {
+        rows.push(csvRow([
+          s.label, s.alloy,
+          s.thickness_in.toFixed(6),
+          (s.thickness_in * 1000).toFixed(4),
+          (s.thickness_in * 25400).toFixed(3),
+          s.note || ''
+        ]));
+      });
+      downloadCSV('IMS_Sample_Library.csv', rows);
+    }
+
+    function exportCurveCSV(curveId) {
+      const curves  = loadCurves();
+      const samples = loadSamples();
+      const curve   = curves.find(c => c.id === curveId);
+      if (!curve) return;
+      const points  = curve.pointIds.map(id => samples.find(s => s.id === id)).filter(Boolean)
+                        .sort((a, b) => a.thickness_in - b.thickness_in);
+      if (points.length === 0) { showToast('No points on this curve.'); return; }
+      const rows = [csvRow(['Point', 'Label', 'Alloy', 'Thickness (in)', 'Thickness (mil)', 'Thickness (µm)', 'Stack'])];
+      points.forEach((s, i) => {
+        rows.push(csvRow([
+          i + 1, s.label, s.alloy,
+          s.thickness_in.toFixed(6),
+          (s.thickness_in * 1000).toFixed(4),
+          (s.thickness_in * 25400).toFixed(3),
+          s.note || ''
+        ]));
+      });
+      downloadCSV('IMS_Curve_' + curve.name.replace(/[^a-z0-9]/gi, '_') + '.csv', rows);
+    }
+
+    function printLibrary() {
+      const samples = loadSamples();
+      if (samples.length === 0) { showToast('Library is empty.'); return; }
+
+      const groups = {};
+      samples.forEach(s => { (groups[s.alloy] = groups[s.alloy] || []).push(s); });
+
+      let body = `<h2 style="margin-bottom:4px">IMS Sample Library</h2>
+        <p style="color:#555;font-size:0.85rem;margin-bottom:20px">Printed ${new Date().toLocaleDateString()}</p>`;
+
+      Object.keys(groups).sort().forEach(alloy => {
+        const list = groups[alloy].slice().sort((a, b) => a.thickness_in - b.thickness_in);
+        body += `<h3 style="margin:16px 0 8px;font-size:0.9rem;color:#333;border-bottom:1px solid #ccc;padding-bottom:4px">Alloy ${alloy}</h3>
+          <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+          <thead><tr style="background:#f5f5f5">
+            <th style="text-align:left;padding:6px 8px">Label</th>
+            <th style="text-align:right;padding:6px 8px">Thickness (in)</th>
+            <th style="text-align:right;padding:6px 8px">Mil</th>
+            <th style="text-align:right;padding:6px 8px">µm</th>
+            <th style="text-align:left;padding:6px 8px">Stack</th>
+          </tr></thead><tbody>`;
+        list.forEach((s, i) => {
+          const bg = i % 2 === 0 ? '#fff' : '#fafafa';
+          body += `<tr style="background:${bg}">
+            <td style="padding:5px 8px;font-weight:600">${s.label}</td>
+            <td style="padding:5px 8px;text-align:right">${s.thickness_in.toFixed(5)}</td>
+            <td style="padding:5px 8px;text-align:right">${(s.thickness_in * 1000).toFixed(3)}</td>
+            <td style="padding:5px 8px;text-align:right">${(s.thickness_in * 25400).toFixed(3)}</td>
+            <td style="padding:5px 8px;color:#555">${s.note || ''}</td>
+          </tr>`;
+        });
+        body += `</tbody></table>`;
+      });
+
+      openPrintWindow('IMS Sample Library', body);
+    }
+
+    function printCurve(curveId) {
+      const curves  = loadCurves();
+      const samples = loadSamples();
+      const curve   = curves.find(c => c.id === curveId);
+      if (!curve) return;
+      const points  = curve.pointIds.map(id => samples.find(s => s.id === id)).filter(Boolean)
+                        .sort((a, b) => a.thickness_in - b.thickness_in);
+      if (points.length === 0) { showToast('No points on this curve.'); return; }
+
+      let body = `<h2 style="margin-bottom:4px">IMS Calibration Curve: ${curve.name}</h2>
+        <p style="color:#555;font-size:0.85rem;margin-bottom:20px">Printed ${new Date().toLocaleDateString()} &nbsp;·&nbsp; ${points.length} calibration points</p>
+        <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+        <thead><tr style="background:#f5f5f5">
+          <th style="text-align:left;padding:6px 8px">Point</th>
+          <th style="text-align:left;padding:6px 8px">Label</th>
+          <th style="text-align:left;padding:6px 8px">Alloy</th>
+          <th style="text-align:right;padding:6px 8px">Thickness (in)</th>
+          <th style="text-align:right;padding:6px 8px">Mil</th>
+          <th style="text-align:right;padding:6px 8px">µm</th>
+          <th style="text-align:left;padding:6px 8px">Stack</th>
+        </tr></thead><tbody>`;
+      points.forEach((s, i) => {
+        const bg = i % 2 === 0 ? '#fff' : '#fafafa';
+        body += `<tr style="background:${bg}">
+          <td style="padding:5px 8px;color:#555">${i + 1}</td>
+          <td style="padding:5px 8px;font-weight:600">${s.label}</td>
+          <td style="padding:5px 8px">${s.alloy}</td>
+          <td style="padding:5px 8px;text-align:right">${s.thickness_in.toFixed(5)}</td>
+          <td style="padding:5px 8px;text-align:right">${(s.thickness_in * 1000).toFixed(3)}</td>
+          <td style="padding:5px 8px;text-align:right">${(s.thickness_in * 25400).toFixed(3)}</td>
+          <td style="padding:5px 8px;color:#555">${s.note || ''}</td>
+        </tr>`;
+      });
+      body += `</tbody></table>`;
+      openPrintWindow('IMS Curve \u2013 ' + curve.name, body);
+    }
+
+    // ── Backup / Restore ─────────────────────────────────────────
+    function backupData() {
+      const data = {
+        version: 1,
+        exported: new Date().toISOString(),
+        samples: loadSamples(),
+        systems: loadSystems(),
+        curves:  loadCurves(),
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      const date = new Date().toISOString().slice(0,10);
+      a.href = url; a.download = `IMS_Backup_${date}.json`; a.click();
+      URL.revokeObjectURL(url);
+      showToast('Backup downloaded.');
+    }
+
+    function restoreData(evt) {
+      const file   = evt.target.files[0];
+      const errEl  = document.getElementById('restoreError');
+      errEl.classList.remove('visible');
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!Array.isArray(data.samples) || !Array.isArray(data.systems)) {
+            errEl.textContent = 'Invalid backup file.';
+            errEl.classList.add('visible'); return;
+          }
+          if (!confirm(`This will replace all current data with the backup from ${data.exported ? data.exported.slice(0,10) : 'unknown date'}. Continue?`)) return;
+          saveSamples(data.samples);
+          saveSystems(data.systems);
+          saveCurves(data.curves || []);
+          // Re-run seed flags so re-seeding won't overwrite restored data
+          localStorage.setItem('ims_seeded_v1','1');
+          localStorage.setItem('ims_seeded_v2','1');
+          localStorage.setItem('ims_seeded_v3','1');
+          localStorage.setItem('ims_seeded_v4','1');
+          showToast('Data restored successfully.');
+          renderSystems();
+          libAlloyFilter = '';
+          renderLibrary();
+        } catch(ex) {
+          errEl.textContent = 'Could not read file — make sure it is a valid IMS backup.';
+          errEl.classList.add('visible');
+        }
+        evt.target.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    function openPrintWindow(title, bodyHtml) {
+      const w = window.open('', '_blank', 'width=900,height=700');
+      w.document.write(`<!DOCTYPE html><html><head><title>${title}</title>
+        <style>body{font-family:'Segoe UI',sans-serif;padding:24px;color:#000}h2{font-size:1.2rem}h3{font-size:1rem}</style>
+        </head><body>${bodyHtml}</body></html>`);
+      w.document.close();
+      w.focus();
+      w.print();
+    }
+
+    // ── Systems ───────────────────────────────────────────────────
+    function addSystem() {
+      const nameEl = document.getElementById('sysName');
+      const errEl  = document.getElementById('sysError');
+      const name   = nameEl.value.trim();
+      errEl.classList.remove('visible');
+      if (!name) { errEl.textContent = 'Enter a system name.'; errEl.classList.add('visible'); return; }
+      const systems = loadSystems();
+      if (systems.find(s => s.name.toLowerCase() === name.toLowerCase())) {
+        errEl.textContent = 'A system with that name already exists.'; errEl.classList.add('visible'); return;
+      }
+      systems.push({ id: Date.now(), name });
+      saveSystems(systems);
+      nameEl.value = '';
+      renderSystems();
+    }
+
+    function deleteSystem(id) {
+      if (!confirm('Remove this system? Usage flags on samples will also be cleared.')) return;
+      saveSystems(loadSystems().filter(s => s.id !== id));
+      // Remove from all samples
+      const samples = loadSamples().map(s => ({
+        ...s,
+        usedInSystems: (s.usedInSystems || []).filter(sid => sid !== id)
+      }));
+      saveSamples(samples);
+      renderSystems();
+    }
+
+    function toggleSystemUsage(sampleId, systemId) {
+      const samples = loadSamples();
+      const sample  = samples.find(s => s.id === sampleId);
+      if (!sample) return;
+      const set = new Set(sample.usedInSystems || []);
+      if (set.has(systemId)) set.delete(systemId);
+      else set.add(systemId);
+      sample.usedInSystems = [...set];
+      saveSamples(samples);
+      renderLibrary();
+    }
+
+    function renderSystems() {
+      const systems = loadSystems();
+      const samples = loadSamples();
+      const container = document.getElementById('systemList');
+      if (!container) return;
+
+      if (systems.length === 0) {
+        container.innerHTML = '<p class="empty-state">No systems yet.<br>Add your IMS units above.</p>';
+        return;
+      }
+
+      let html = '';
+      systems.forEach(sys => {
+        const usedSamples = samples
+          .filter(s => (s.usedInSystems || []).includes(sys.id))
+          .sort((a, b) => a.alloy.localeCompare(b.alloy) || a.thickness_in - b.thickness_in);
+
+        // Build alloy badge pills for the header
+        const alloyMap = {};
+        usedSamples.forEach(s => { (alloyMap[s.alloy] = alloyMap[s.alloy] || []).push(s); });
+        const alloyBadges = Object.keys(alloyMap).sort()
+          .map(a => `<span class="badge" style="background:#2e334488;color:#8b93ad;margin-left:4px">${a} <span style="color:#6b7590">${alloyMap[a].length}</span></span>`)
+          .join('');
+
+        // Build content: one sub-section per alloy
+        let bodyHtml = '';
+        if (usedSamples.length === 0) {
+          bodyHtml = `<p style="color:#4d5570;font-size:0.82rem;padding:8px 0">No samples marked for this system yet.<br>Go to Sample Library and click the system tag on each sample.</p>`;
+        } else {
+          Object.keys(alloyMap).sort().forEach(alloy => {
+            const list = alloyMap[alloy];
+            bodyHtml += `
+              <div style="margin-bottom:16px">
+                <div style="font-size:0.72rem;font-weight:600;color:#4f7cff;text-transform:uppercase;letter-spacing:0.08em;padding:4px 0 6px;border-bottom:1px solid #2e3340;margin-bottom:6px">
+                  Alloy ${alloy} <span style="color:#4d5570;font-weight:400">${list.length} sample${list.length !== 1 ? 's' : ''}</span>
+                </div>
+                <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+                  <thead><tr>
+                    <th style="text-align:left;color:#4d5570;font-weight:500;padding:3px 8px 5px 0;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em">Label</th>
+                    <th style="text-align:right;color:#4d5570;font-weight:500;padding:3px 8px 5px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em">Inches</th>
+                    <th style="text-align:right;color:#4d5570;font-weight:500;padding:3px 8px 5px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em">Mil</th>
+                    <th style="text-align:right;color:#4d5570;font-weight:500;padding:3px 0 5px 8px;font-size:0.7rem;text-transform:none">µm</th>
+                  </tr></thead>
+                  <tbody>`;
+            list.forEach((s, i) => {
+              const bg = i % 2 !== 0 ? 'background:#1e2229' : '';
+              bodyHtml += `<tr style="${bg}">
+                <td style="padding:5px 8px 5px 0;font-weight:600;color:#c8d0e7">${esc(s.label)}${s.note ? `<div style="font-size:0.72rem;color:#4d5570;font-weight:400">${esc(s.note)}</div>` : ''}</td>
+                <td style="padding:5px 8px;text-align:right;color:#a0aac2">${s.thickness_in.toFixed(5)}</td>
+                <td style="padding:5px 8px;text-align:right;color:#a0aac2">${(s.thickness_in*1000).toFixed(3)}</td>
+                <td style="padding:5px 0 5px 8px;text-align:right;color:#a0aac2">${(s.thickness_in*25400).toFixed(3)}</td>
+              </tr>`;
+            });
+            bodyHtml += `</tbody></table></div>`;
+          });
+        }
+
+        html += `
+        <div class="curve-card" id="sys-card-${sys.id}">
+          <div class="curve-card-header" onclick="toggleSysCard(${sys.id})">
+            <span class="curve-name">${esc(sys.name)}</span>
+            <span style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">${alloyBadges}</span>
+            <span style="color:#4d5570;font-size:0.8rem;margin-left:6px">&#9660;</span>
+          </div>
+          <div class="curve-card-body">
+            ${bodyHtml}
+            <div class="curve-actions" style="margin-top:10px">
+              <button class="btn-curve-action" onclick="exportSystemCSV(${sys.id})">&#8659; Export CSV</button>
+              <button class="btn-curve-action" onclick="printSystem(${sys.id})">&#9113; Print</button>
+              <button class="btn-curve-action danger" onclick="deleteSystem(${sys.id})">Remove System</button>
+            </div>
+          </div>
+        </div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function toggleSysCard(id) {
+      const card = document.getElementById('sys-card-' + id);
+      if (card) card.classList.toggle('open');
+    }
+
+    function exportSystemCSV(sysId) {
+      const sys     = loadSystems().find(s => s.id === sysId);
+      const samples = loadSamples().filter(s => (s.usedInSystems || []).includes(sysId))
+                        .sort((a, b) => a.alloy.localeCompare(b.alloy) || a.thickness_in - b.thickness_in);
+      if (!sys) return;
+      if (samples.length === 0) { showToast('No samples marked for this system.'); return; }
+      const rows = [csvRow(['Label', 'Alloy', 'Thickness (in)', 'Thickness (mil)', 'Thickness (µm)', 'Stack'])];
+      samples.forEach(s => rows.push(csvRow([
+        s.label, s.alloy,
+        s.thickness_in.toFixed(6),
+        (s.thickness_in * 1000).toFixed(4),
+        (s.thickness_in * 25400).toFixed(3),
+        s.note || ''
+      ])));
+      downloadCSV('IMS_System_' + sys.name.replace(/[^a-z0-9]/gi, '_') + '.csv', rows);
+    }
+
+    function printSystem(sysId) {
+      const sys     = loadSystems().find(s => s.id === sysId);
+      const samples = loadSamples().filter(s => (s.usedInSystems || []).includes(sysId))
+                        .sort((a, b) => a.alloy.localeCompare(b.alloy) || a.thickness_in - b.thickness_in);
+      if (!sys) return;
+      if (samples.length === 0) { showToast('No samples marked for this system.'); return; }
+      let body = `<h2 style="margin-bottom:4px">IMS System: ${sys.name}</h2>
+        <p style="color:#555;font-size:0.85rem;margin-bottom:20px">Printed ${new Date().toLocaleDateString()} &nbsp;·&nbsp; ${samples.length} calibration samples</p>
+        <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+        <thead><tr style="background:#f5f5f5">
+          <th style="text-align:left;padding:6px 8px">Label</th>
+          <th style="text-align:left;padding:6px 8px">Alloy</th>
+          <th style="text-align:right;padding:6px 8px">Thickness (in)</th>
+          <th style="text-align:right;padding:6px 8px">Mil</th>
+          <th style="text-align:right;padding:6px 8px">µm</th>
+          <th style="text-align:left;padding:6px 8px">Stack</th>
+        </tr></thead><tbody>`;
+      samples.forEach((s, i) => {
+        const bg = i % 2 === 0 ? '#fff' : '#fafafa';
+        body += `<tr style="background:${bg}">
+          <td style="padding:5px 8px;font-weight:600">${s.label}</td>
+          <td style="padding:5px 8px">${s.alloy}</td>
+          <td style="padding:5px 8px;text-align:right">${s.thickness_in.toFixed(5)}</td>
+          <td style="padding:5px 8px;text-align:right">${(s.thickness_in*1000).toFixed(3)}</td>
+          <td style="padding:5px 8px;text-align:right">${(s.thickness_in*25400).toFixed(3)}</td>
+          <td style="padding:5px 8px;color:#555">${s.note || ''}</td>
+        </tr>`;
+      });
+      body += `</tbody></table>`;
+      openPrintWindow('IMS \u2013 ' + sys.name, body);
+    }
+
+    // ── Seed Data ────────────────────────────────────────────────
+    function seedInitialSamples() {
+      if (!localStorage.getItem('ims_seeded_v1')) {
+        const seed = [
+          { id: 1000001, label: '3004-01', alloy: '3004', thickness_in: 1015.461 / 25400 },
+          { id: 1000002, label: '3004-02', alloy: '3004', thickness_in:  997.316 / 25400 },
+          { id: 1000003, label: '3004-03', alloy: '3004', thickness_in:  996.908 / 25400 },
+          { id: 1000004, label: '3004-04', alloy: '3004', thickness_in: 1003.884 / 25400 },
+          { id: 1000005, label: '3004-05', alloy: '3004', thickness_in: 1210.695 / 25400 },
+          { id: 1000006, label: '3004-06', alloy: '3004', thickness_in: 1211.356 / 25400 },
+          { id: 1000007, label: '3004-07', alloy: '3004', thickness_in: 1238.909 / 25400 },
+          { id: 1000008, label: '3004-08', alloy: '3004', thickness_in: 1234.669 / 25400 },
+        ];
+        saveSamples([...loadSamples(), ...seed]);
+        localStorage.setItem('ims_seeded_v1', '1');
+      }
+
+      if (!localStorage.getItem('ims_seeded_v2')) {
+        // Stacked combinations from first calibration run
+        // Thicknesses derived from summed µm values of component samples
+        const stacks = [
+          {
+            id: 2000001, label: '3004 S1+5', alloy: '3004',
+            thickness_in: (1015.461 + 1210.695) / 25400,
+            note: '3004-01 + 3004-05'
+          },
+          {
+            id: 2000002, label: '3004 S1+2+5', alloy: '3004',
+            thickness_in: (1015.461 + 997.316 + 1210.695) / 25400,
+            note: '3004-01 + 3004-02 + 3004-05'
+          },
+          {
+            id: 2000003, label: '3004 S1+2+5+6', alloy: '3004',
+            thickness_in: (1015.461 + 997.316 + 1210.695 + 1211.356) / 25400,
+            note: '3004-01 + 3004-02 + 3004-05 + 3004-06'
+          },
+          {
+            id: 2000004, label: '3004 S1+2+5+6+7', alloy: '3004',
+            thickness_in: (1015.461 + 997.316 + 1210.695 + 1211.356 + 1238.909) / 25400,
+            note: '3004-01 + 3004-02 + 3004-05 + 3004-06 + 3004-07'
+          },
+          {
+            id: 2000005, label: '3004 S1+2+3+5+6+7', alloy: '3004',
+            thickness_in: (1015.461 + 997.316 + 996.908 + 1210.695 + 1211.356 + 1238.909) / 25400,
+            note: '3004-01 + 3004-02 + 3004-03 + 3004-05 + 3004-06 + 3004-07'
+          },
+        ];
+        saveSamples([...loadSamples(), ...stacks]);
+        localStorage.setItem('ims_seeded_v2', '1');
+      }
+
+      if (!localStorage.getItem('ims_seeded_v3')) {
+        // 3105 individual samples A=1, B=2, C=3, D=4 — used in HCM
+        const hcmSys = loadSystems().find(s => s.name.toUpperCase() === 'HCM');
+        const hcmId  = hcmSys ? hcmSys.id : null;
+        const tag    = hcmId ? [hcmId] : [];
+        const samples3105 = [
+          { id: 4000001, label: '3105-1', alloy: '3105', thickness_in: 0.018025,   usedInSystems: tag },
+          { id: 4000002, label: '3105-2', alloy: '3105', thickness_in: 0.0383375,  usedInSystems: tag },
+          { id: 4000003, label: '3105-3', alloy: '3105', thickness_in: 0.062925,   usedInSystems: tag },
+          { id: 4000004, label: '3105-4', alloy: '3105', thickness_in: 0.0774,     usedInSystems: tag },
+        ];
+        saveSamples([...loadSamples(), ...samples3105]);
+        localStorage.setItem('ims_seeded_v3', '1');
+      }
+
+      if (!localStorage.getItem('ims_seeded_v4')) {
+        // Mark the 5 existing 3004 stacked combinations as used in HCM
+        const hcmSys = loadSystems().find(s => s.name.toUpperCase() === 'HCM');
+        if (hcmSys) {
+          const stackIds = [2000001, 2000002, 2000003, 2000004, 2000005];
+          const updated = loadSamples().map(s => {
+            if (!stackIds.includes(s.id)) return s;
+            const set = new Set(s.usedInSystems || []);
+            set.add(hcmSys.id);
+            return { ...s, usedInSystems: [...set] };
+          });
+          saveSamples(updated);
+        }
+        localStorage.setItem('ims_seeded_v4', '1');
+      }
+
+      if (!localStorage.getItem('ims_seeded_v5')) {
+        // 3105 stacked combinations used in HCM
+        // A=3105-1(0.018025), B=3105-2(0.0383375), C=3105-3(0.062925), D=3105-4(0.0774)
+        const hcmSys = loadSystems().find(s => s.name.toUpperCase() === 'HCM');
+        const tag    = hcmSys ? [hcmSys.id] : [];
+        const stacks3105 = [
+          { id: 5000001, label: '3105 A+D',     alloy: '3105', thickness_in: 0.095425, note: '3105-1 + 3105-4',             usedInSystems: tag },
+          { id: 5000002, label: '3105 C+D',     alloy: '3105', thickness_in: 0.140325, note: '3105-3 + 3105-4',             usedInSystems: tag },
+          { id: 5000003, label: '3105 B+C+D',   alloy: '3105', thickness_in: 0.178663, note: '3105-2 + 3105-3 + 3105-4',   usedInSystems: tag },
+          { id: 5000004, label: '3105 A+B+C+D', alloy: '3105', thickness_in: 0.196688, note: '3105-1 + 3105-2 + 3105-3 + 3105-4', usedInSystems: tag },
+        ];
+        saveSamples([...loadSamples(), ...stacks3105]);
+        localStorage.setItem('ims_seeded_v5', '1');
+      }
+    }
+
+    // ── Init ─────────────────────────────────────────────────────
+    seedInitialSamples();
+
+    // Seed systems if none exist yet
+    if (loadSystems().length === 0) {
+      saveSystems([
+        { id: 3000001, name: 'CM1' },
+        { id: 3000002, name: 'CM2' },
+        { id: 3000003, name: 'BBL' },
+        { id: 3000004, name: 'HCM' },
+        { id: 3000005, name: 'Transfer' },
+        { id: 3000006, name: 'HGL' },
+        { id: 3000007, name: 'HV' },
+      ]);
+    }
+
+    updateDensity();
+
+
+  </script>
+</body>
+</html>
