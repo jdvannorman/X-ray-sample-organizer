@@ -332,9 +332,9 @@
       background: #1a1d23; border: 1px solid #2e3340;
       border-radius: 8px; padding: 14px 16px; margin-bottom: 10px;
     }
-    .target-card.outside-below { border-left: 3px solid #f0a500; }
-    .target-card.outside-above { border-left: 3px solid #4fc97a; }
-    .target-card.on-target     { border-left: 3px solid #4f7cff; }
+    .target-card.status-below  { border-left: 3px solid #4f7cff; }
+    .target-card.status-within { border-left: 3px solid #4fc97a; }
+    .target-card.status-above  { border-left: 3px solid #ff6b6b; }
 
     .target-header {
       display: flex; justify-content: space-between;
@@ -344,15 +344,19 @@
       font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
       letter-spacing: 0.07em; color: #6b7590;
     }
-    .target-label.outside-below { color: #f0a500; }
-    .target-label.outside-above { color: #4fc97a; }
-    .target-label.on-target     { color: #4f7cff; }
-    .target-aim  { font-size: 0.75rem; color: #4d5570; }
+    .target-label.status-below  { color: #4f7cff; }
+    .target-label.status-within { color: #4fc97a; }
+    .target-label.status-above  { color: #ff6b6b; }
+    .target-aim { font-size: 0.75rem; color: #6b7590; white-space: nowrap; }
+    .aim-arrow { display: inline-block; font-size: 1rem; font-weight: 700; margin-left: 4px; vertical-align: -1px; }
+    .aim-arrow.above { color: #ff6b6b; }
+    .aim-arrow.below { color: #4f7cff; }
+    .aim-arrow.level { color: #4fc97a; }
     .target-total { font-size: 1rem; font-weight: 700; color: #c8d0e7; margin-bottom: 6px; }
     .target-delta { font-size: 0.78rem; margin-bottom: 8px; }
-    .delta-neg  { color: #f0a500; }
-    .delta-pos  { color: #4fc97a; }
-    .delta-zero { color: #4f7cff; }
+    .delta-neg  { color: #4f7cff; }
+    .delta-pos  { color: #ff6b6b; }
+    .delta-zero { color: #4fc97a; }
 
     .stack-save-panel {
       display: none; margin-top: 12px; padding: 12px;
@@ -372,53 +376,6 @@
     .btn-saved { background: #2a4a2a; color: #4fc97a; border: 1px solid #4fc97a44; cursor: default; }
     .btn-saved:hover { background: #2a4a2a; }
 
-    /* CURVES TAB */
-    .curve-card {
-      background: #1a1d23; border: 1px solid #2e3340;
-      border-radius: 10px; margin-bottom: 14px; overflow: hidden;
-    }
-    .curve-card-header {
-      display: flex; align-items: center; gap: 10px;
-      padding: 12px 16px; cursor: pointer;
-      border-bottom: 1px solid transparent; transition: border-color 0.15s;
-    }
-    .curve-card.open .curve-card-header { border-bottom-color: #2e3340; }
-    .curve-name {
-      font-size: 1rem; font-weight: 600; color: #c8d0e7; flex: 1;
-    }
-    .curve-meta { font-size: 0.78rem; color: #6b7590; }
-    .curve-card-body { display: none; padding: 14px 16px; }
-    .curve-card.open .curve-card-body { display: block; }
-
-    .curve-points-table {
-      width: 100%; border-collapse: collapse; margin-bottom: 14px;
-      font-size: 0.85rem;
-    }
-    .curve-points-table th {
-      text-align: left; color: #6b7590; font-weight: 500;
-      text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.06em;
-      padding: 0 8px 8px 0; border-bottom: 1px solid #2e3340;
-    }
-    .curve-points-table td {
-      padding: 7px 8px 7px 0; border-bottom: 1px solid #1e2229; color: #c8d0e7;
-    }
-    .curve-points-table td:last-child { text-align: right; }
-    .curve-points-table tr:last-child td { border-bottom: none; }
-    .curve-pt-label { font-weight: 600; }
-    .curve-pt-note  { font-size: 0.75rem; color: #6b7590; }
-    .btn-remove-pt  {
-      background: transparent; color: #ff6b6b44; border: none;
-      font-size: 1rem; cursor: pointer; padding: 0 4px; width: auto; margin-top: 0;
-      transition: color 0.15s;
-    }
-    .btn-remove-pt:hover { color: #ff6b6b; background: transparent; }
-
-    .curve-add-row {
-      display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-top: 4px;
-    }
-    .curve-add-row .field { margin-bottom: 0; flex: 1; min-width: 120px; }
-
-    .curve-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
     .btn-curve-action {
       background: #2e3340; color: #c8d0e7; border: none; border-radius: 6px;
       padding: 7px 14px; font-size: 0.8rem; font-weight: 500; cursor: pointer;
@@ -446,14 +403,27 @@
     }
     .system-list-name { font-size: 0.95rem; font-weight: 600; color: #c8d0e7; flex: 1; }
     .system-usage-count { font-size: 0.78rem; color: #6b7590; }
+    .system-card {
+      background: #1a1d23; border: 1px solid #2e3340;
+      border-radius: 10px; margin-bottom: 14px; overflow: hidden;
+    }
+    .system-card-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; cursor: pointer;
+      border-bottom: 1px solid transparent; transition: border-color 0.15s;
+    }
+    .system-card.open .system-card-header { border-bottom-color: #2e3340; }
+    .system-name { font-size: 1rem; font-weight: 600; color: #c8d0e7; flex: 1; }
+    .system-card-body { display: none; padding: 14px 16px; }
+    .system-card.open .system-card-body { display: block; }
+    .system-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
 
     /* PRINT STYLES */
     @media print {
       body { background: #fff; color: #000; padding: 0; }
       .card { box-shadow: none; border: none; max-width: 100%; padding: 0; }
       .tabs, .tab-btn, button, .add-form, .sample-actions,
-      .sample-edit-row, .save-panel, .curve-add-row, .curve-actions,
-      .btn-remove-pt, #tab-calculator, #tab-range { display: none !important; }
+      .sample-edit-row, .save-panel, #tab-calculator, #tab-range { display: none !important; }
       .tab-panel { display: block !important; }
       h1 { color: #000; }
       .subtitle { color: #555; }
@@ -463,12 +433,10 @@
       .sample-measurements, .sample-meas-cell { color: #333; }
       .sample-meas-val { color: #000; }
       .sys-tag { display: none; }
-      .curve-card { border-color: #ccc; }
-      .curve-card-body { display: block !important; }
-      .curve-card-header { border-bottom-color: #ccc; }
-      .curve-name { color: #000; }
-      .curve-points-table th { color: #555; border-bottom-color: #ccc; }
-      .curve-points-table td { color: #000; border-bottom-color: #eee; }
+      .system-card { border-color: #ccc; }
+      .system-card-body { display: block !important; }
+      .system-card-header { border-bottom-color: #ccc; }
+      .system-name { color: #000; }
     }
 
     .divider { border: none; border-top: 1px solid #2e3340; margin: 20px 0; }
@@ -485,13 +453,12 @@
 <body>
   <div class="card">
     <h1>IMS Sample Manager</h1>
-    <p class="subtitle">Calculate thickness · Manage sample library · Build calibration curves</p>
+    <p class="subtitle">Calculate thickness · Manage sample library · Find thickness ranges</p>
 
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('calculator', this)">Calculator</button>
       <button class="tab-btn" onclick="switchTab('library', this)">Sample Library</button>
       <button class="tab-btn" onclick="switchTab('range', this)">Range Finder</button>
-      <button class="tab-btn" onclick="switchTab('curves', this)">Curves</button>
       <button class="tab-btn" onclick="switchTab('systems', this)">Systems</button>
     </div>
 
@@ -603,25 +570,6 @@
       </div>
     </div>
 
-    <!-- ===== CURVES TAB ===== -->
-    <div id="tab-curves" class="tab-panel">
-      <div class="add-form">
-        <div class="add-form-title">New Calibration Curve</div>
-        <div class="row">
-          <div class="field" style="margin-bottom:0">
-            <label>Curve Name</label>
-            <input type="text" id="curveName" placeholder="e.g. 3004 Thin, Al-Curve-1" />
-          </div>
-          <div style="display:flex;align-items:flex-end">
-            <button onclick="addCurve()" style="margin-top:0;width:100%">Create Curve</button>
-          </div>
-        </div>
-        <p class="error" id="curveError" style="margin-top:10px"></p>
-      </div>
-
-      <div id="curveList"></div>
-    </div>
-
     <!-- ===== SYSTEMS TAB ===== -->
     <div id="tab-systems" class="tab-panel">
       <div class="add-form">
@@ -642,7 +590,7 @@
       <!-- Backup / Restore -->
       <div class="add-form" style="margin-top:24px">
         <div class="add-form-title">Backup &amp; Restore</div>
-        <p style="font-size:0.8rem;color:#6b7590;margin-bottom:14px;line-height:1.5">Export all samples, systems, and curves to a JSON file. Re-import it any time to restore your data.</p>
+        <p style="font-size:0.8rem;color:#6b7590;margin-bottom:14px;line-height:1.5">Export your sample and system data to a JSON file. Re-import it any time to restore your data.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button onclick="backupData()" class="btn-secondary" style="width:auto;margin-top:0">&#8659; Export Backup</button>
           <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:0.95rem;font-weight:600;color:#c8d0e7;background:#2e3340;border-radius:8px;padding:10px 16px">
@@ -658,7 +606,7 @@
     <div id="tab-range" class="tab-panel">
 
       <div class="section-header" style="margin-bottom:6px">Distributed Targets</div>
-      <p class="section-desc">Evenly space N targets across a range. The first combo lands <em>below</em> the min; the last lands <em>above</em> the max. Middle targets snap to the closest available stack.</p>
+      <p class="section-desc">Evenly space N targets across a range. The first combo lands <em>below</em> the min; the last lands <em>above</em> the max. Middle targets snap to the closest available stack. With All Alloys selected, ranges are calculated separately for each alloy.</p>
 
       <div class="row" style="margin-top:16px">
         <div class="field">
@@ -754,7 +702,6 @@
       document.getElementById('tab-' + name).classList.add('active');
       btn.classList.add('active');
       if (name === 'library') renderLibrary();
-      if (name === 'curves')  renderCurves();
       if (name === 'systems') renderSystems();
     }
 
@@ -998,11 +945,30 @@
       let samples = loadSamples();
       if (alloyFilter) samples = samples.filter(s => s.alloy === alloyFilter);
 
-      if (samples.length === 0) {
-        errEl.textContent = 'No samples in library' + (alloyFilter ? ' for that alloy' : '') + '. Add samples first.';
+      if (samples.length === 0 && alloyFilter) {
+        errEl.textContent = 'No samples in library for that alloy. Add samples first.';
         errEl.classList.add('visible'); return;
       }
 
+      const samplesByAlloy = {};
+      samples.forEach(sample => {
+        (samplesByAlloy[sample.alloy] = samplesByAlloy[sample.alloy] || []).push(sample);
+      });
+
+      const alloys = alloyFilter ? [alloyFilter] : Object.keys(DENSITIES).sort();
+      const html = alloys.map(alloy => {
+        const alloySamples = samplesByAlloy[alloy] || [];
+        return alloySamples.length > 0
+          ? renderDistributedTargets(alloySamples, alloy, minT, maxT, numTargets, maxStack)
+          : `<div class="alloy-group" style="margin-top:16px">
+              <div class="alloy-group-header">Alloy ${esc(alloy)}</div>
+              <p class="empty-state">No samples for alloy ${esc(alloy)}. Add thickness samples in the Sample Library to calculate this range.</p>
+            </div>`;
+      }).join('');
+      document.getElementById('distResults').innerHTML = html;
+    }
+
+    function renderDistributedTargets(samples, alloy, minT, maxT, numTargets, maxStack) {
       samples.sort((a, b) => a.thickness_in - b.thickness_in);
 
       const allCombos = [];
@@ -1018,96 +984,86 @@
       buildCombos(0, [], 0);
       allCombos.sort((a, b) => a.total - b.total);
 
-      if (allCombos.length === 0) {
-        errEl.textContent = 'No stacking combinations possible with the current library.';
-        errEl.classList.add('visible'); return;
-      }
-
       const step = (maxT - minT) / (numTargets - 1);
       const targetValues = [];
       for (let i = 0; i < numTargets; i++) targetValues.push(minT + i * step);
 
-      let html = '<div class="combo-list" style="margin-top:16px">';
+      let html = `<div class="alloy-group" style="margin-top:16px">
+        <div class="alloy-group-header">Alloy ${esc(alloy)}</div>
+        <div class="combo-list">`;
 
-      targetValues.forEach((target, idx) => {
+      targetValues.forEach((target, targetIdx) => {
         let best = null;
-        let mode = 'on-target';
-        let modeLabel = 'Target';
 
-        if (idx === 0) {
+        if (targetIdx === 0) {
           const below = allCombos.filter(c => c.total < minT - 1e-9);
           if (below.length > 0) {
             best = below[below.length - 1];
-            mode = 'outside-below'; modeLabel = 'Below Range';
           } else {
             best = allCombos.reduce((a, b) => Math.abs(b.total - target) < Math.abs(a.total - target) ? b : a);
-            mode = best.total > target + 1e-9 ? 'outside-above' : 'on-target';
-            modeLabel = best.total > target + 1e-9 ? 'Closest Above' : 'Closest';
           }
-        } else if (idx === numTargets - 1) {
+        } else if (targetIdx === numTargets - 1) {
           const above = allCombos.filter(c => c.total > maxT + 1e-9);
           if (above.length > 0) {
             best = above[0];
-            mode = 'outside-above'; modeLabel = 'Above Range';
           } else {
             best = allCombos.reduce((a, b) => Math.abs(b.total - target) < Math.abs(a.total - target) ? b : a);
-            mode = best.total < target - 1e-9 ? 'outside-below' : 'on-target';
-            modeLabel = best.total < target - 1e-9 ? 'Closest Below' : 'Closest';
           }
         } else {
           best = allCombos.reduce((a, b) => Math.abs(b.total - target) < Math.abs(a.total - target) ? b : a);
-          const diff = best.total - target;
-          if (Math.abs(diff) < 1e-9)      { mode = 'on-target';     modeLabel = 'On Target'; }
-          else if (diff < 0)               { mode = 'outside-below'; modeLabel = 'Closest Below'; }
-          else                             { mode = 'outside-above'; modeLabel = 'Closest Above'; }
         }
 
+        const mode = best.total < minT - 1e-9 ? 'status-below'
+          : best.total > maxT + 1e-9 ? 'status-above'
+          : 'status-within';
+        const modeLabel = mode === 'status-below' ? 'Below Range'
+          : mode === 'status-above' ? 'Above Range'
+          : 'Within Range';
+        const resultIdx = lastDistResults.length;
         lastDistResults.push({ best, mode });
 
         const delta      = best.total - target;
         const deltaAbs   = Math.abs(delta);
         const deltaSign  = delta < -1e-9 ? '\u2212' : delta > 1e-9 ? '+' : '\u00b1';
+        const aimDirection = delta < -1e-9 ? 'below' : delta > 1e-9 ? 'above' : 'level';
+        const arrow = aimDirection === 'below' ? '\u2193' : aimDirection === 'above' ? '\u2191' : '\u2194';
+        const arrowLabel = aimDirection === 'below' ? 'Below aim' : aimDirection === 'above' ? 'Above aim' : 'On aim';
         const deltaClass = delta < -1e-9 ? 'delta-neg' : delta > 1e-9 ? 'delta-pos' : 'delta-zero';
         const chips = best.samples.map(s =>
           `<span class="combo-chip">${esc(s.label)}<span class="chip-alloy">${s.alloy}</span></span>`).join('');
 
-        // Guess alloy: use the most common alloy among stacked samples
-        const alloyCounts = {};
-        best.samples.forEach(s => { alloyCounts[s.alloy] = (alloyCounts[s.alloy] || 0) + 1; });
-        const guessAlloy = Object.keys(alloyCounts).sort((a,b) => alloyCounts[b]-alloyCounts[a])[0];
         const alloyOpts = Object.keys(DENSITIES).map(a =>
-          `<option value="${a}" ${a === guessAlloy ? 'selected' : ''}>${a}</option>`).join('');
+          `<option value="${a}" ${a === alloy ? 'selected' : ''}>${a}</option>`).join('');
 
         html += `
-        <div class="target-card ${mode}" id="tcard-${idx}">
+        <div class="target-card ${mode}" id="tcard-${resultIdx}">
           <div class="target-header">
-            <span class="target-label ${mode}">${idx + 1} of ${numTargets} \u2014 ${modeLabel}</span>
-            <span class="target-aim">aim ${target.toFixed(5)}"</span>
+            <span class="target-label ${mode}">${targetIdx + 1} of ${numTargets} \u2014 ${modeLabel}</span>
+            <span class="target-aim">aim ${target.toFixed(5)}"<span class="aim-arrow ${aimDirection}" aria-label="${arrowLabel}" title="${arrowLabel}">${arrow}</span></span>
           </div>
           <div class="target-total">${best.total.toFixed(5)}" &nbsp;&middot;&nbsp; ${(best.total * 1000).toFixed(3)} mil</div>
           <div class="target-delta ${deltaClass}">&Delta; ${deltaSign}${(deltaAbs * 1000).toFixed(3)} mil &nbsp;&middot;&nbsp; ${best.samples.length} sample${best.samples.length > 1 ? 's' : ''}</div>
           <div class="combo-samples" style="margin-bottom:10px">${chips}</div>
           <button class="btn-edit" style="width:auto;margin-top:0;padding:5px 12px;font-size:0.78rem"
-            onclick="toggleStackSave(${idx})">Save to Library</button>
-          <div class="stack-save-panel" id="ssp-${idx}">
+            onclick="toggleStackSave(${resultIdx})">Save to Library</button>
+          <div class="stack-save-panel" id="ssp-${resultIdx}">
             <div class="stack-save-row">
               <div class="field">
                 <label>Stack Label</label>
-                <input type="text" id="ssl-${idx}" placeholder="e.g. Stack-A1" />
+                <input type="text" id="ssl-${resultIdx}" placeholder="e.g. Stack-A1" />
               </div>
               <div class="field">
                 <label>Alloy</label>
-                <select id="ssa-${idx}">${alloyOpts}</select>
+                <select id="ssa-${resultIdx}">${alloyOpts}</select>
               </div>
-              <button class="btn-save-stack" id="ssb-${idx}" onclick="saveStack(${idx})">Save</button>
+              <button class="btn-save-stack" id="ssb-${resultIdx}" onclick="saveStack(${resultIdx})">Save</button>
             </div>
-            <div class="stack-save-err" id="sse-${idx}"></div>
+            <div class="stack-save-err" id="sse-${resultIdx}"></div>
           </div>
         </div>`;
       });
 
-      html += '</div>';
-      document.getElementById('distResults').innerHTML = html;
+      return html + '</div></div>';
     }
 
     function toggleStackSave(idx) {
@@ -1166,142 +1122,6 @@
       setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2500);
     }
 
-    // ── Curves ───────────────────────────────────────────────────
-    function addCurve() {
-      const nameEl = document.getElementById('curveName');
-      const errEl  = document.getElementById('curveError');
-      const name   = nameEl.value.trim();
-      errEl.classList.remove('visible');
-      if (!name) { errEl.textContent = 'Enter a curve name.'; errEl.classList.add('visible'); return; }
-      const curves = loadCurves();
-      if (curves.find(c => c.name.toLowerCase() === name.toLowerCase())) {
-        errEl.textContent = 'A curve with that name already exists.'; errEl.classList.add('visible'); return;
-      }
-      curves.push({ id: Date.now(), name, pointIds: [] });
-      saveCurves(curves);
-      nameEl.value = '';
-      renderCurves();
-    }
-
-    function deleteCurve(id) {
-      if (!confirm('Delete this curve? The samples themselves will not be removed from the library.')) return;
-      saveCurves(loadCurves().filter(c => c.id !== id));
-      renderCurves();
-    }
-
-    function addPointToCurve(curveId) {
-      const sel = document.getElementById('cpadd-' + curveId);
-      const sampleId = parseInt(sel.value);
-      if (!sampleId) return;
-      const curves = loadCurves();
-      const curve  = curves.find(c => c.id === curveId);
-      if (!curve) return;
-      if (curve.pointIds.includes(sampleId)) {
-        showToast('That sample is already on this curve.'); return;
-      }
-      curve.pointIds.push(sampleId);
-      saveCurves(curves);
-      renderCurves();
-      // Re-open the same card
-      setTimeout(() => {
-        const card = document.getElementById('curve-card-' + curveId);
-        if (card) { card.classList.add('open'); }
-      }, 10);
-    }
-
-    function removePointFromCurve(curveId, sampleId) {
-      const curves = loadCurves();
-      const curve  = curves.find(c => c.id === curveId);
-      if (!curve) return;
-      curve.pointIds = curve.pointIds.filter(id => id !== sampleId);
-      saveCurves(curves);
-      renderCurves();
-      setTimeout(() => {
-        const card = document.getElementById('curve-card-' + curveId);
-        if (card) card.classList.add('open');
-      }, 10);
-    }
-
-    function toggleCurveCard(id) {
-      const card = document.getElementById('curve-card-' + id);
-      if (card) card.classList.toggle('open');
-    }
-
-    function renderCurves() {
-      const curves  = loadCurves();
-      const samples = loadSamples();
-      const container = document.getElementById('curveList');
-      if (!container) return;
-
-      if (curves.length === 0) {
-        container.innerHTML = '<p class="empty-state">No curves yet.<br>Create one above to start grouping samples for calibration.</p>';
-        return;
-      }
-
-      const alloyOpts = Object.keys(DENSITIES).map(a => `<option value="${a}">${a}</option>`).join('');
-
-      let html = '';
-      curves.forEach(curve => {
-        const points = curve.pointIds
-          .map(id => samples.find(s => s.id === id))
-          .filter(Boolean)
-          .sort((a, b) => a.thickness_in - b.thickness_in);
-
-        // Samples not yet on this curve, for the add dropdown
-        const available = samples.filter(s => !curve.pointIds.includes(s.id));
-
-        const availOpts = available.length
-          ? `<option value="">— select sample —</option>` +
-            available.map(s => `<option value="${s.id}">${esc(s.label)} · ${(s.thickness_in * 1000).toFixed(3)} mil (${s.alloy})</option>`).join('')
-          : `<option value="">All library samples added</option>`;
-
-        let tableRows = '';
-        if (points.length === 0) {
-          tableRows = `<tr><td colspan="6" style="color:#4d5570;padding:12px 0">No points yet — add samples below.</td></tr>`;
-        } else {
-          points.forEach(s => {
-            tableRows += `<tr>
-              <td class="curve-pt-label">${esc(s.label)}</td>
-              <td>${s.alloy}</td>
-              <td>${s.thickness_in.toFixed(5)}"</td>
-              <td>${(s.thickness_in * 1000).toFixed(3)}</td>
-              <td>${(s.thickness_in * 25400).toFixed(3)}</td>
-              <td><button class="btn-remove-pt" title="Remove from curve" onclick="removePointFromCurve(${curve.id},${s.id})">&#10005;</button></td>
-            </tr>`;
-          });
-        }
-
-        html += `
-        <div class="curve-card" id="curve-card-${curve.id}">
-          <div class="curve-card-header" onclick="toggleCurveCard(${curve.id})">
-            <span class="curve-name">${esc(curve.name)}</span>
-            <span class="curve-meta">${points.length} point${points.length !== 1 ? 's' : ''}</span>
-            <span style="color:#4d5570;font-size:0.8rem;margin-left:6px">&#9660;</span>
-          </div>
-          <div class="curve-card-body">
-            <table class="curve-points-table">
-              <thead><tr><th>Label</th><th>Alloy</th><th>Inches</th><th>Mil</th><th style="text-transform:none">µm</th><th></th></tr></thead>
-              <tbody>${tableRows}</tbody>
-            </table>
-            <div class="curve-add-row">
-              <div class="field">
-                <label>Add Sample</label>
-                <select id="cpadd-${curve.id}">${availOpts}</select>
-              </div>
-              <button class="btn-save-stack" onclick="addPointToCurve(${curve.id})" style="margin-bottom:0">Add</button>
-            </div>
-            <div class="curve-actions">
-              <button class="btn-curve-action" onclick="exportCurveCSV(${curve.id})">&#8659; Export CSV</button>
-              <button class="btn-curve-action" onclick="printCurve(${curve.id})">&#9113; Print</button>
-              <button class="btn-curve-action danger" onclick="deleteCurve(${curve.id})">Delete Curve</button>
-            </div>
-          </div>
-        </div>`;
-      });
-
-      container.innerHTML = html;
-    }
-
     // ── Export / Print ────────────────────────────────────────────
     function csvRow(cells) {
       return cells.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',');
@@ -1329,27 +1149,6 @@
         ]));
       });
       downloadCSV('IMS_Sample_Library.csv', rows);
-    }
-
-    function exportCurveCSV(curveId) {
-      const curves  = loadCurves();
-      const samples = loadSamples();
-      const curve   = curves.find(c => c.id === curveId);
-      if (!curve) return;
-      const points  = curve.pointIds.map(id => samples.find(s => s.id === id)).filter(Boolean)
-                        .sort((a, b) => a.thickness_in - b.thickness_in);
-      if (points.length === 0) { showToast('No points on this curve.'); return; }
-      const rows = [csvRow(['Point', 'Label', 'Alloy', 'Thickness (in)', 'Thickness (mil)', 'Thickness (µm)', 'Stack'])];
-      points.forEach((s, i) => {
-        rows.push(csvRow([
-          i + 1, s.label, s.alloy,
-          s.thickness_in.toFixed(6),
-          (s.thickness_in * 1000).toFixed(4),
-          (s.thickness_in * 25400).toFixed(3),
-          s.note || ''
-        ]));
-      });
-      downloadCSV('IMS_Curve_' + curve.name.replace(/[^a-z0-9]/gi, '_') + '.csv', rows);
     }
 
     function printLibrary() {
@@ -1387,43 +1186,6 @@
       });
 
       openPrintWindow('IMS Sample Library', body);
-    }
-
-    function printCurve(curveId) {
-      const curves  = loadCurves();
-      const samples = loadSamples();
-      const curve   = curves.find(c => c.id === curveId);
-      if (!curve) return;
-      const points  = curve.pointIds.map(id => samples.find(s => s.id === id)).filter(Boolean)
-                        .sort((a, b) => a.thickness_in - b.thickness_in);
-      if (points.length === 0) { showToast('No points on this curve.'); return; }
-
-      let body = `<h2 style="margin-bottom:4px">IMS Calibration Curve: ${curve.name}</h2>
-        <p style="color:#555;font-size:0.85rem;margin-bottom:20px">Printed ${new Date().toLocaleDateString()} &nbsp;·&nbsp; ${points.length} calibration points</p>
-        <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
-        <thead><tr style="background:#f5f5f5">
-          <th style="text-align:left;padding:6px 8px">Point</th>
-          <th style="text-align:left;padding:6px 8px">Label</th>
-          <th style="text-align:left;padding:6px 8px">Alloy</th>
-          <th style="text-align:right;padding:6px 8px">Thickness (in)</th>
-          <th style="text-align:right;padding:6px 8px">Mil</th>
-          <th style="text-align:right;padding:6px 8px">µm</th>
-          <th style="text-align:left;padding:6px 8px">Stack</th>
-        </tr></thead><tbody>`;
-      points.forEach((s, i) => {
-        const bg = i % 2 === 0 ? '#fff' : '#fafafa';
-        body += `<tr style="background:${bg}">
-          <td style="padding:5px 8px;color:#555">${i + 1}</td>
-          <td style="padding:5px 8px;font-weight:600">${s.label}</td>
-          <td style="padding:5px 8px">${s.alloy}</td>
-          <td style="padding:5px 8px;text-align:right">${s.thickness_in.toFixed(5)}</td>
-          <td style="padding:5px 8px;text-align:right">${(s.thickness_in * 1000).toFixed(3)}</td>
-          <td style="padding:5px 8px;text-align:right">${(s.thickness_in * 25400).toFixed(3)}</td>
-          <td style="padding:5px 8px;color:#555">${s.note || ''}</td>
-        </tr>`;
-      });
-      body += `</tbody></table>`;
-      openPrintWindow('IMS Curve \u2013 ' + curve.name, body);
     }
 
     // ── Backup / Restore ─────────────────────────────────────────
@@ -1588,15 +1350,15 @@
         }
 
         html += `
-        <div class="curve-card" id="sys-card-${sys.id}">
-          <div class="curve-card-header" onclick="toggleSysCard(${sys.id})">
-            <span class="curve-name">${esc(sys.name)}</span>
+        <div class="system-card" id="sys-card-${sys.id}">
+          <div class="system-card-header" onclick="toggleSysCard(${sys.id})">
+            <span class="system-name">${esc(sys.name)}</span>
             <span style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">${alloyBadges}</span>
             <span style="color:#4d5570;font-size:0.8rem;margin-left:6px">&#9660;</span>
           </div>
-          <div class="curve-card-body">
+          <div class="system-card-body">
             ${bodyHtml}
-            <div class="curve-actions" style="margin-top:10px">
+            <div class="system-actions" style="margin-top:10px">
               <button class="btn-curve-action" onclick="exportSystemCSV(${sys.id})">&#8659; Export CSV</button>
               <button class="btn-curve-action" onclick="printSystem(${sys.id})">&#9113; Print</button>
               <button class="btn-curve-action danger" onclick="deleteSystem(${sys.id})">Remove System</button>
